@@ -1,0 +1,46 @@
+name: Release
+on:
+    push:
+        branches:
+            - 'main'
+    workflow_dispatch:
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions: {}
+
+jobs:
+    release:
+        # prevents this action from running on forks
+        if: github.repository == 'david-plugge/typed-pocketbase'
+        permissions:
+            contents: write # to create release (changesets/action)
+            pull-requests: write # to create pull request (changesets/action)
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 7
+
+            - name: Set up Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18.x
+                  cache: pnpm
+
+            - run: |
+                  pnpm install --frozen-lockfile
+                  pnpm run build
+
+            - name: Create a release
+              id: changesets
+              uses: changesets/action@v1
+              with:
+                  version: pnpm ci:version
+                  commit: 'chore: update version'
+                  title: 'chore: update version'
+                  publish: pnpm ci:release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,32 @@
+name: CI
+on:
+    push:
+        branches:
+            - '**'
+
+# cancel in-progress runs on new commits to same PR (gitub.event.number)
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.number || github.sha }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read # to fetch code (actions/checkout)
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 7
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18.x
+                  cache: pnpm
+
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm run lint
+            - run: pnpm run test
+            - run: pnpm run build
