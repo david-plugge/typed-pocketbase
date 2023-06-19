@@ -11,7 +11,7 @@ export type TypedRecord<
 > = Data & {
 	export(): Data;
 	$export(): Data;
-} & PocketBaseRecord;
+} & Omit<PocketBaseRecord, 'export' | '$export'>;
 
 export interface SystemFields {
 	id: string;
