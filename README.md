@@ -21,10 +21,10 @@ yarn add typed-pocketbase
 
 ## Usage
 
-Generate the PocketBase types using [pocketbase-typegen](https://github.com/patmood/pocketbase-typegen):
+Generate the types:
 
 ```bash
-npx pocketbase-typegen --db ./pb_data/data.db --out pocketbase-types.ts
+npx typed-pocketbase --email admin@mail.com --password supersecretpassword -o Database.d.ts
 ```
 
 Create a PocketBase client and add types:
@@ -32,9 +32,9 @@ Create a PocketBase client and add types:
 ```ts
 import PocketBase from 'pocketbase';
 import { TypedPocketBase } from 'typed-pocketbase';
-import { CollectionRecords } from './pocketbase-types';
+import { Schema } from './Database';
 
-const db: TypedPocketBase<CollectionRecords> = new PocketBase('http://localhost:8090');
+const db = new PocketBase('http://localhost:8090') as TypedPocketBase<Schema>;
 ```
 
 Enjoy full type-safety:
@@ -62,6 +62,8 @@ Supported methods
 ## Selecting fields
 
 Use the `fields` function to select the properties:
+
+**Note:** Don´t use `expand` when selecting fields
 
 ```ts
 import { fields } from 'typed-pocketbase';
@@ -117,6 +119,12 @@ db.collection('posts').getFullList({
 		!untilNow && lt('date', '2023-01-01')
 	)
 });
+
+// filter for columns in relations
+// works up to 6 levels deep, including the top level
+db.collection('posts').getFullList({
+	filter: eq('owner.name', 'me')
+});
 ```
 
 Most filter operators are available as a short hand.
@@ -154,6 +162,31 @@ db.collection('posts').getFullList({
 		desc('date'),
 		sortTitle && asc('title')
 	)
+});
+```
+
+## Expanding
+
+Use the `expand` function to expand relations:
+
+**Note:** Don´t use `fields` when expanding as fields only works for the top level
+
+```ts
+import { expand } from 'typed-pocketbase';
+
+db.collection('posts').getFullList({
+	expand: expand({
+		user: true
+	})
+});
+
+// nested expand
+db.collection('posts').getFullList({
+	expand: expand({
+		user: {
+			profile: true
+		}
+	})
 });
 ```
 
