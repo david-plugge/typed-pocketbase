@@ -246,11 +246,15 @@ export type Schema = {
 function getFieldType(schema: SchemaField) {
 	switch (schema.type) {
 		case 'text':
-		case 'date':
 		case 'editor': // rich text
+		case 'email':
+		case 'url':
+		case 'date':
 		case 'relation':
 		case 'file':
 			return 'string';
+		case 'number':
+			return 'number';
 		case 'bool':
 			return 'boolean';
 	}
