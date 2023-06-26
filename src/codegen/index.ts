@@ -43,7 +43,7 @@ sade(PKG_NAME, true)
 	.option(
 		'-u, --url',
 		'URL to your hosted pocketbase instance.',
-		'http://localhost:8090'
+		'http://127.0.0.1:8090'
 	)
 	.option('-e, --email', 'email for an admin pocketbase user.')
 	.option('-p, --password', 'email for an admin pocketbase user.')
