@@ -1,8 +1,11 @@
 {
+	"ts-node": {
+		"esm": true
+	},
 	"compilerOptions": {
 		"module": "ESNext",
 		"target": "ESNext",
-		"moduleResolution": "bundler",
+		"moduleResolution": "NodeNext",
 		"forceConsistentCasingInFileNames": true,
 		"strict": true,
 		"esModuleInterop": true,

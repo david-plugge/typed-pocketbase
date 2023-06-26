@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "typed-pocketbase": "0.0.2"
+  },
+  "changesets": [
+    "fresh-pugs-repair"
+  ]
+}

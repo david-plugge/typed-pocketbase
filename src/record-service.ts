@@ -1,86 +1,159 @@
 import {
-	BaseQueryParams,
-	FullListQueryParams,
-	ListQueryParams,
 	ListResult,
-	RecordListQueryParams,
-	RecordQueryParams,
 	RecordService,
 	RecordSubscription,
 	UnsubscribeFunc
 } from 'pocketbase';
-import { Filter, FilterParam } from './filter';
-import { BaseRecord, SystemFields, TypedRecord } from './types';
-import { FieldsParam } from './fields';
-import { SortParam } from './sort';
+import {
+	Simplify,
+	GenericCollection,
+	TypedRecord,
+	Fields,
+	Columns,
+	GenericExpand,
+	LooseAutocomplete,
+	RecordWithExpandToDotPath,
+	BaseRecord
+} from './types.js';
+import { FieldsParam } from './fields.js';
+import { Filter, FilterParam } from './filter.js';
+import { SortParam } from './sort.js';
+import { ExpandParam } from './expand.js';
 
 // @ts-expect-error
-export interface TypedRecordService<T extends BaseRecord = BaseRecord> extends RecordService {
-	getFullList<Select extends keyof T = keyof T>(
-		queryParams?: TypedFullListQueryParams<T, Select> | undefined
-	): Promise<TypedRecord<T, Select>[]>;
+export interface TypedRecordService<Collection extends GenericCollection>
+	extends RecordService {
+	getFullList<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
+		queryParams?: TypedRecordFullListQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>[]
+	>;
 
-	getFullList<Select extends keyof T = keyof T>(
+	getFullList<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
 		batch?: number,
-		queryParams?: TypedRecordListQueryParams<T, Select> | undefined
-	): Promise<TypedRecord<T, Select>[]>;
+		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>[]
+	>;
 
-	getList<Select extends keyof T = keyof T>(
-		page?: number | undefined,
-		perPage?: number | undefined,
-		queryParams?: TypedRecordListQueryParams<T, Select> | undefined
-	): Promise<ListResult<TypedRecord<T, Select>>>;
+	getList<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
+		page?: number,
+		perPage?: number,
+		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
+	): Promise<
+		ListResult<
+			TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+		>
+	>;
 
-	getFirstListItem<Select extends keyof T = keyof T>(
-		filter: Filter<T>,
-		queryParams?: TypedRecordListQueryParams<T, Select> | undefined
-	): Promise<TypedRecord<T, Select>>;
+	getFirstListItem<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
+		filter: Filter<RecordWithExpandToDotPath<Collection>>,
+		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+	>;
 
-	getOne<Select extends keyof T = keyof T>(
+	getOne<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
 		id: string,
-		queryParams?: TypedRecordQueryParams<T, Select> | undefined
-	): Promise<TypedRecord<T, Select>>;
+		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+	>;
 
-	create<Select extends keyof T = keyof T>(
-		bodyParams: Omit<T, keyof SystemFields>,
-		queryParams?: TypedRecordQueryParams<T, Select>
-	): Promise<TypedRecord<T, Select>>;
+	create<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
+		bodyParams: Collection['record'],
+		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+	>;
 
-	update<Select extends keyof T = keyof T>(
+	update<
+		Select extends Fields<Collection> = Fields<Collection>,
+		Expand extends GenericExpand = {}
+	>(
 		id: string,
-		bodyParams: Partial<Omit<T, keyof SystemFields>>,
-		queryParams?: TypedRecordQueryParams<T, Select>
-	): Promise<TypedRecord<T, Select>>;
+		bodyParams: Partial<Collection['record']>,
+		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
+	): Promise<
+		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+	>;
 
 	subscribe(
-		topic: '*' | (string & {}),
-		callback: (data: RecordSubscription<TypedRecord<T>>) => void
+		topic: LooseAutocomplete<'*'>,
+		callback: (
+			data: RecordSubscription<TypedRecord<Columns<Collection>>>
+		) => void
+	): Promise<UnsubscribeFunc>;
+
+	subscribe(
+		callback: (
+			data: RecordSubscription<TypedRecord<Columns<Collection>>>
+		) => void
 	): Promise<UnsubscribeFunc>;
 }
 
-export interface TypedBaseQueryParams<T extends BaseRecord, S extends keyof T>
-	extends BaseQueryParams {
-	fields?: FieldsParam<T, S>;
+export interface TypedBaseQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>
+> {
+	fields?: FieldsParam<Columns<T>, S>;
+	$autoCancel?: boolean;
+	$cancelKey?: string;
 }
 
-export interface TypedRecordQueryParams<T extends BaseRecord, S extends keyof T>
-	extends TypedBaseQueryParams<T, S>,
-		Omit<RecordQueryParams, 'fields'> {
-	expand?: string;
+export interface TypedListQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>
+> extends TypedBaseQueryParams<T, S> {
+	page?: number;
+	perPage?: number;
+	sort?: SortParam<RecordWithExpandToDotPath<T>>;
+	filter?: FilterParam<RecordWithExpandToDotPath<T>>;
 }
 
-export interface TypedListQueryParams<T extends BaseRecord, S extends keyof T>
-	extends TypedBaseQueryParams<T, S>,
-		Omit<ListQueryParams, 'fields' | 'filter' | 'sort'> {
-	filter?: FilterParam<T>;
-	sort?: SortParam<T>;
+export interface TypedFullListQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>
+> extends TypedListQueryParams<T, S> {
+	batch?: number;
 }
 
-export interface TypedFullListQueryParams<T extends BaseRecord, S extends keyof T>
-	extends TypedListQueryParams<T, S>,
-		Omit<FullListQueryParams, 'fields' | 'filter' | 'sort'> {}
+export interface TypedRecordQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>,
+	E extends GenericExpand
+> extends TypedBaseQueryParams<T, S> {
+	expand?: ExpandParam<T, E>;
+}
 
-export interface TypedRecordListQueryParams<T extends BaseRecord, S extends keyof T>
-	extends TypedListQueryParams<T, S>,
-		TypedRecordQueryParams<T, S>,
-		Omit<RecordListQueryParams, 'fields' | 'filter' | 'sort'> {}
+export interface TypedRecordListQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>,
+	E extends GenericExpand
+> extends TypedListQueryParams<T, S>,
+		TypedRecordQueryParams<T, S, E> {}
+
+export interface TypedRecordFullListQueryParams<
+	T extends GenericCollection,
+	S extends Fields<T>,
+	E extends GenericExpand
+> extends TypedFullListQueryParams<T, S>,
+		TypedRecordQueryParams<T, S, E> {}

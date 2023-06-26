@@ -1,4 +1,4 @@
-import { BaseRecord } from './types';
+import { BaseRecord } from './types.js';
 
 export type FieldsParam<T extends BaseRecord, S extends keyof T> = {
 	__record__?: T;
