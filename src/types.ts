@@ -21,7 +21,6 @@ export type UnionToIntersection<T> = (
 	: never;
 
 export type BaseRecord = Record<string, any>;
-export type BaseResponse = Record<string, any>;
 
 export type BaseSystemFields = {
 	id: string;
@@ -32,14 +31,9 @@ export type BaseSystemFields = {
 export interface GenericCollection {
 	collectionId: string;
 	collectionName: string;
-	record: BaseRecord;
-	response: BaseResponse;
-	files: Record<
-		string,
-		{
-			thumbs: string;
-		}
-	>;
+	response: BaseRecord;
+	create?: BaseRecord;
+	update?: BaseRecord;
 	relations: Record<string, GenericCollection | GenericCollection[]>;
 }
 

@@ -1,13 +1,6 @@
 import PocketBase from 'pocketbase';
 import { Schema } from './Database.js';
-import {
-	TypedPocketBase,
-	fields,
-	expand,
-	eq,
-	asc,
-	sort
-} from '../src/index.js';
+import { TypedPocketBase, fields, expand, eq, asc } from '../src/index.js';
 
 const db = new PocketBase('http://localhost:8090') as TypedPocketBase<Schema>;
 await db.admins.authWithPassword('test@test.com', 'secretpassword');
@@ -31,7 +24,7 @@ await db.admins.authWithPassword('test@test.com', 'secretpassword');
 		})
 	});
 
-	console.log(posts);
+	console.log(posts[0].expand.owner);
 }
 
 {

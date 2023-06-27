@@ -12,8 +12,7 @@ import {
 	Columns,
 	GenericExpand,
 	LooseAutocomplete,
-	RecordWithExpandToDotPath,
-	BaseRecord
+	RecordWithExpandToDotPath
 } from './types.js';
 import { FieldsParam } from './fields.js';
 import { Filter, FilterParam } from './filter.js';
@@ -79,7 +78,7 @@ export interface TypedRecordService<Collection extends GenericCollection>
 		Select extends Fields<Collection> = Fields<Collection>,
 		Expand extends GenericExpand = {}
 	>(
-		bodyParams: Collection['record'],
+		bodyParams: Collection['create'],
 		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
 	): Promise<
 		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
@@ -90,7 +89,7 @@ export interface TypedRecordService<Collection extends GenericCollection>
 		Expand extends GenericExpand = {}
 	>(
 		id: string,
-		bodyParams: Partial<Collection['record']>,
+		bodyParams: Collection['update'],
 		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
 	): Promise<
 		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>

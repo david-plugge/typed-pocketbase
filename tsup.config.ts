@@ -11,7 +11,7 @@ export default defineConfig([
 		clean: true
 	},
 	{
-		entry: ['src/codegen/index.ts'],
+		entry: ['src/codegen/cli.ts'],
 		format: ['esm'],
 		outDir: 'dist/codegen',
 		dts: false,

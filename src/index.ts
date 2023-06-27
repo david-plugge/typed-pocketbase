@@ -1,7 +1,6 @@
 import PocketBase from 'pocketbase';
 import { GenericSchema } from './types.js';
 import { TypedRecordService } from './record-service.js';
-import { TypedFileService } from './file-service.js';
 
 export { fields } from './fields.js';
 export { and, or, eq, gt, gte, like, lt, lte, neq, nlike } from './filter.js';
@@ -15,6 +14,4 @@ export interface TypedPocketBase<Schema extends GenericSchema>
 	collection<C extends keyof Schema>(
 		idOrName: C
 	): TypedRecordService<Schema[C]>;
-
-	files: TypedFileService<Schema>;
 }

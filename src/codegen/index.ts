@@ -1,120 +1,47 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
-import PocketBase, { SchemaField } from 'pocketbase';
-import sade from 'sade';
+import PocketBase from 'pocketbase';
+import { Collection, Field } from './types.js';
 
-type Column = {
-	name: string;
-	type: string;
-	required: boolean;
-};
-type Relation = {
-	name: string;
-	target: unknown | unknown[];
-};
-type File = {
-	name: string;
-	thumbs: [];
-};
-type CollectionType = 'auth' | 'view' | 'base';
-
-interface Collection {
-	id: string;
-	name: string;
-	type: CollectionType;
-
-	typeName: string;
-
-	columns: Column[];
-	relations: Relation[];
-	files: File[];
-}
-
-interface CliOptions {
+export interface GenerateOptions {
 	url: string;
 	email: string;
 	password: string;
-	out?: string;
 }
 
-sade(PKG_NAME, true)
-	.version(PKG_VERSION)
-	.describe('Generate types for the PocketBase JavaScript SDK')
-	.option(
-		'-u, --url',
-		'URL to your hosted pocketbase instance.',
-		'http://127.0.0.1:8090'
-	)
-	.option('-e, --email', 'email for an admin pocketbase user.')
-	.option('-p, --password', 'email for an admin pocketbase user.')
-	.option(
-		'-o, --out',
-		'path to save the typescript output file (prints to console by default)'
-	)
-	.action(
-		({
-			url,
-			email = process.env.POCKETBASE_EMAIL,
-			password = process.env.POCKETBASE_PASSWORD,
-			out
-		}: Partial<CliOptions>) => {
-			if (!url) error(`required option '-u, --url' not specified`);
-
-			if (!email)
-				error(
-					`required option '-e, --email' not specified and 'POCKETBASE_EMAIL' env not set`
-				);
-
-			if (!password)
-				error(
-					`required option '-p, --password' not specified and 'POCKETBASE_PASSWORD' env not set`
-				);
-
-			generateTypes({
-				url,
-				email,
-				password,
-				out
-			});
-		}
-	)
-	.parse(process.argv);
-
-function error(msg: string): never {
-	console.error(msg);
-	process.exit();
+interface Columns {
+	create: string[];
+	update: string[];
+	response: string[];
 }
 
-async function generateTypes({ url, email, password, out }: CliOptions) {
+interface Relation {
+	name: string;
+	target: string;
+}
+
+export async function generateTypes({ url, email, password }: GenerateOptions) {
 	const pb = new PocketBase(url);
 	await pb.admins.authWithPassword(email, password);
 
-	const collections = await pb.collections.getFullList();
+	const collections = await pb.collections
+		.getFullList()
+		.then((collections) =>
+			collections.map((c) => c.export() as Collection)
+		);
 
 	const deferred: Array<() => void> = [];
 
-	const tables = collections.map<Collection>((c) => {
-		const columns: Column[] = [];
-		const files: File[] = [];
-		const relations: Relation[] = [];
+	const tables = collections.map((c) => {
 		const typeName = pascalCase(c.name);
 
-		c.schema.forEach((field) => {
-			columns.push({
-				name: field.name,
-				required: field.required,
-				type: getFieldType(field)
-			});
+		const columns: Columns = {
+			create: [],
+			update: [],
+			response: []
+		};
+		const relations: Relation[] = [];
 
-			if (field.type === 'file') {
-				files.push({
-					name: field.name,
-					thumbs:
-						field.options.thumbs
-							?.map((t: string) => `'${t}'`)
-							.join(' | ') || 'never'
-				});
-			}
+		c.schema.forEach((field) => {
+			getFieldType(field, columns);
 
 			if (field.type === 'relation') {
 				deferred.push(() => {
@@ -140,13 +67,14 @@ async function generateTypes({ url, email, password, out }: CliOptions) {
 					 * @see https://pocketbase.io/docs/expanding-relations/#indirect-expand
 					 */
 
-					const reg = new RegExp(
-						`CREATE UNIQUE INDEX \`idx_rdMGJaq\` ON \`${c.name}\` \\(\`${field.name}\`\\)`
-						// `CREATE UNIQUE INDEX \`(\\w+)\` ON \`${c.name}\` (\`${field.name}\`)`
-					);
+					const indicies = targetCollection.indexes.map(parseIndex);
 
-					const isUnique = targetCollection.indexes.some((index) =>
-						reg.test(index)
+					const isUnique = indicies.some(
+						(i) =>
+							i &&
+							i.unique &&
+							i.fields.length === 1 &&
+							i.fields[0] === field.name
 					);
 
 					target.relations.push({
@@ -160,10 +88,9 @@ async function generateTypes({ url, email, password, out }: CliOptions) {
 		return {
 			id: c.id,
 			name: c.name,
-			type: c.type as CollectionType,
+			type: c.type,
 			typeName,
 			columns,
-			files,
 			relations
 		};
 	});
@@ -173,92 +100,211 @@ async function generateTypes({ url, email, password, out }: CliOptions) {
 
 	deferred.forEach((c) => c());
 
-	const definition =
-		`
-export type BaseSystemFields<T> = {
+	const indent = '\t';
+
+	const definition = `
+/**
+ * This file was @generated using typed-pocketbase
+ */
+
+// https://pocketbase.io/docs/collections/#base-collection
+type BaseCollectionRecord = {
 	id: string;
 	created: string;
 	updated: string;
-	collectionId: string;
-	collectionName: T;
 };
 
-export type AuthSystemFields<T> = {
+// https://pocketbase.io/docs/collections/#auth-collection
+type AuthCollectionRecord = {
+	id: string;
+	created: string;
+	updated: string;
+	username: string;
 	email: string;
 	emailVisibility: boolean;
-	username: string;
 	verified: boolean;
-} & BaseSystemFields<T>;
+};
+
+// https://pocketbase.io/docs/collections/#view-collection
+type ViewCollectionRecord = {
+	id: string;
+};
+
+// utilities
+
+type MaybeArray<T> = T | T[];
 
 ${tables
-	.map(({ id, name, type, typeName, columns, files, relations }) =>
+	.map((t) =>
 		`
-export type ${typeName}Record = {
-    ${columns
-		.map((col) =>
-			`${col.name}${col.required ? '' : '?'}: ${col.type};`.trim()
-		)
-		.join('\n' + ' '.repeat(4))}
-}
+// ===== ${t.name} =====
 
-export type ${typeName}Response = ${typeName}Record & ${
-			type === 'auth' ? 'AuthSystemFields' : 'BaseSystemFields'
-		}<'${name}'>
-
-export type ${typeName}Collection = {
-    collectionId: '${id}';
-    collectionName: '${name}';
-    record: ${typeName}Record;
-    response: ${typeName}Response;
-    files: {
-        ${files
-			.map((col) => `${col.name}: { thumbs: ${col.thumbs} };`.trim())
-			.join('\n' + ' '.repeat(8))}
-    };
-    relations: {
-        ${relations
-			.map((col) => `${col.name}: ${col.target};`.trim())
-			.join('\n' + ' '.repeat(8))}
-    };
+export type ${t.typeName}Response = {
+    ${t.columns.response.join('\n' + indent)}
+} & ${
+			t.type === 'base'
+				? 'BaseCollectionRecord'
+				: t.type === 'auth'
+				? 'AuthCollectionRecord'
+				: 'ViewCollectionRecord'
+		};
+${
+	// view collections are readonly
+	t.type === 'view'
+		? ''
+		: `
+export type ${t.typeName}Create = {
+	${t.columns.create.join('\n' + indent)}
 };
+
+export type ${t.typeName}Update = {
+	${t.columns.update.join('\n' + indent)}
+};
+`
+}
+export type ${t.typeName}Collection = {
+	type: '${t.type}';
+	collectionId: '${t.id}';
+	collectionName: '${t.name}';
+	response: ${t.typeName}Response;${
+			t.type === 'view'
+				? ''
+				: `
+	create: ${t.typeName}Create;
+	update: ${t.typeName}Update;`
+		}
+	relations: ${
+		t.relations.length === 0
+			? '{}'
+			: `{
+		${t.relations
+			.map((col) => `${col.name}: ${col.target};`)
+			.join('\n' + ' '.repeat(8))}
+	}`
+	};
+};
+
 `.trim()
 	)
 	.join('\n\n')}
 
+// ===== Schema =====
+
 export type Schema = {
-    ${tables
+	${tables
 		.map(({ name, typeName }) => `${name}: ${typeName}Collection;`)
-		.join('\n    ')}
+		.join('\n' + indent)}
 };
+`.trim();
 
-
-    `.trim() + '\n';
-
-	if (out) {
-		const file = resolve(out);
-		await mkdir(dirname(file), { recursive: true });
-		await writeFile(file, definition, 'utf-8');
-	} else {
-		console.log(definition);
-	}
+	return definition;
 }
 
-function getFieldType(schema: SchemaField) {
-	switch (schema.type) {
+function getFieldType(field: Field, { response, create, update }: Columns) {
+	const req = field.required ? '' : '?';
+
+	const addResponse = (type: string, name = field.name) =>
+		response.push(`${name}${req}: ${type};`);
+	const addCreate = (type: string, name = field.name) =>
+		create.push(`${name}${req}: ${type};`);
+	const addUpdate = (type: string, name = field.name) =>
+		update.push(`${name}?: ${type};`);
+	const addAll = (type: string) => {
+		addResponse(type);
+		addCreate(type);
+		addUpdate(type);
+	};
+
+	switch (field.type) {
 		case 'text':
 		case 'editor': // rich text
 		case 'email':
 		case 'url':
-		case 'date':
-		case 'relation':
-		case 'file':
-			return 'string';
-		case 'number':
-			return 'number';
-		case 'bool':
-			return 'boolean';
+		case 'date': {
+			addAll('string');
+			break;
+		}
+		case 'number': {
+			const type = 'number';
+			addAll(type);
+			addUpdate(type, `'${field.name}+'`);
+			addUpdate(type, `'${field.name}-'`);
+			break;
+		}
+		case 'bool': {
+			addAll('boolean');
+			break;
+		}
+		case 'select': {
+			const singleType = field.options.values
+				.map((v) => `'${v}'`)
+				.join(' | ');
+			const multiple = field.options.maxSelect > 1;
+			const type = multiple
+				? `MaybeArray<${singleType}>`
+				: `${singleType}`;
+
+			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addCreate(type);
+			addUpdate(type);
+			if (multiple) {
+				addUpdate(type, `'${field.name}+'`);
+				addUpdate(type, `'${field.name}-'`);
+			}
+
+			break;
+		}
+		case 'relation': {
+			const singleType = 'string';
+			const multiple = field.options.maxSelect > 1;
+			const type = multiple
+				? `MaybeArray<${singleType}>`
+				: `${singleType}`;
+
+			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addCreate(type);
+			addUpdate(type);
+			if (multiple) {
+				addUpdate(type, `'${field.name}+'`);
+				addUpdate(type, `'${field.name}-'`);
+			}
+			break;
+		}
+		case 'file': {
+			const singleType = 'string';
+			const multiple = field.options.maxSelect > 1;
+			const type = multiple
+				? `MaybeArray<${singleType}>`
+				: `${singleType}`;
+
+			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addCreate(type);
+			addUpdate(type);
+			if (multiple) {
+				addUpdate(`'${field.name}-'`, type);
+			}
+			break;
+		}
+		default:
+			throw new Error(`Unknown type ${field.type}`);
 	}
-	throw new Error(`Unknown type ${schema.type}`);
+}
+
+function parseIndex(index: string) {
+	const match = index.match(
+		/^CREATE(\s+UNIQUE)?\s+INDEX\s+`(\w+)`\s+ON\s+`(\w+)`\s+\(([\s\S]*)\)$/
+	);
+	if (!match) return null;
+	const [_, unique, name, collection, definition] = match;
+
+	const fields = Array.from(definition.matchAll(/`(\S*)`/g)).map((m) => m[1]);
+
+	return {
+		unique: !!unique,
+		name,
+		collection,
+		fields
+	};
 }
 
 function pascalCase(str: string) {
