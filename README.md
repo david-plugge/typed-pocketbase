@@ -10,31 +10,33 @@ Add types to the [PocketBase JavaScript SDK](https://github.com/pocketbase/js-sd
 
 ```bash
 # npm
-npm i typed-pocketbase
+npm i typed-pocketbase@next
 
 # pnpm
-pnpm i typed-pocketbase
+pnpm i typed-pocketbase@next
 
 # yarn
-yarn add typed-pocketbase
+yarn add typed-pocketbase@next
 ```
 
 ## Usage
 
-Generate the PocketBase types using [pocketbase-typegen](https://github.com/patmood/pocketbase-typegen):
+Generate the types:
 
 ```bash
-npx pocketbase-typegen --db ./pb_data/data.db --out pocketbase-types.ts
+npx typed-pocketbase --email admin@mail.com --password supersecretpassword -o Database.d.ts
 ```
 
-Create a PocketBase client and add types:
+The codegen tool will look for `POCKETBASE_EMAIL` and `POCKETBASE_PASSWORD` environment variables if the email or password are not passed using cli options.
+
+Create a PocketBase client:
 
 ```ts
 import PocketBase from 'pocketbase';
 import { TypedPocketBase } from 'typed-pocketbase';
-import { CollectionRecords } from './pocketbase-types';
+import { Schema } from './Database';
 
-const db: TypedPocketBase<CollectionRecords> = new PocketBase('http://localhost:8090');
+const db = new PocketBase('http://localhost:8090') as TypedPocketBase<Schema>;
 ```
 
 Enjoy full type-safety:
@@ -63,6 +65,8 @@ Supported methods
 
 Use the `fields` function to select the properties:
 
+**Note:** Don´t use `expand` when selecting fields
+
 ```ts
 import { fields } from 'typed-pocketbase';
 
@@ -79,13 +83,14 @@ db.collection('posts').getFullList({
 
 ## Filtering columns
 
-Use the `and`, `or` and some other utility function to filter rows:
+Use the `and`, `or` and other utility functions to filter rows:
 
 ```ts
 import { and, or, eq } from 'typed-pocketbase';
 
 // get all posts created in 2022
 db.collection('posts').getFullList({
+	// a "manual" filter is a tuple of length 3
 	filter: and(['date', '<', '2023-01-01'], ['data', '>=', '2022-01-01'])
 });
 
@@ -117,18 +122,29 @@ db.collection('posts').getFullList({
 		!untilNow && lt('date', '2023-01-01')
 	)
 });
+
+// filter for columns in relations
+// works up to 6 levels deep, including the top level
+db.collection('posts').getFullList({
+	filter: eq('owner.name', 'me')
+});
 ```
 
-Most filter operators are available as a short hand.
+Most filter operators are available as short hand function.
 
 Visit the [pocketbase documentation](https://pocketbase.io/docs/api-records/) to find out about all filters in the `List/Search records` section.
 
 ## Sorting rows
 
-Use the `sort` function to sort the rows:
+Use `sort`, `asc` and `desc` to sort the rows:
 
 ```ts
 import { sort, asc, desc } from 'typed-pocketbase';
+
+db.collection('posts').getFullList({
+	// sort by descending 'date'
+	sort: desc('date')
+});
 
 db.collection('posts').getFullList({
 	// sort by descending 'date' and ascending 'title'
@@ -154,6 +170,31 @@ db.collection('posts').getFullList({
 		desc('date'),
 		sortTitle && asc('title')
 	)
+});
+```
+
+## Expanding
+
+Use the `expand` function to expand relations:
+
+**Note:** Don´t use `fields` when expanding as fields only works for the top level and `expand` would end up as an empty object
+
+```ts
+import { expand } from 'typed-pocketbase';
+
+db.collection('posts').getFullList({
+	expand: expand({
+		user: true
+	})
+});
+
+// nested expand
+db.collection('posts').getFullList({
+	expand: expand({
+		user: {
+			profile: true
+		}
+	})
 });
 ```
 

@@ -1,6 +1,10 @@
-import { BaseRecord } from './types';
+import { BaseRecord } from './types.js';
 
-type ActualFilter<T extends BaseRecord, K extends keyof T = keyof T> = [K, FilterOperand, T[K]];
+type ActualFilter<T extends any, K extends keyof T = keyof T> = [
+	K,
+	FilterOperand,
+	T[K]
+];
 
 export type FilterOperand =
 	| '='
@@ -36,19 +40,27 @@ function serializeFilter([key, op, val]: ActualFilter<any>) {
 function serializeFilters(filters: Filter<any>[]) {
 	return filters
 		.filter(Boolean)
-		.map((filter) => (Array.isArray(filter) ? serializeFilter(filter) : filter));
+		.map((filter) =>
+			Array.isArray(filter) ? serializeFilter(filter) : filter
+		);
 }
 
-export function and<T extends BaseRecord>(...filters: Filter<T>[]): FilterParam<T> {
+export function and<T extends BaseRecord>(
+	...filters: Filter<T>[]
+): FilterParam<T> {
 	const str = serializeFilters(filters).join(' && ');
 
 	return `(${str})`;
 }
 
-export function or<T extends BaseRecord>(...filters: Filter<T>[]): FilterParam<T> {
+export function or<T extends BaseRecord>(
+	...filters: Filter<T>[]
+): FilterParam<T> {
 	const str = filters
 		.filter(Boolean)
-		.map((filter) => (Array.isArray(filter) ? serializeFilter(filter) : filter))
+		.map((filter) =>
+			Array.isArray(filter) ? serializeFilter(filter) : filter
+		)
 		.join(' || ');
 	return `(${str})`;
 }

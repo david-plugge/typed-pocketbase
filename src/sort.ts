@@ -1,11 +1,13 @@
-import { BaseRecord } from './types';
+import { BaseRecord } from './types.js';
 
 export type SortParam<T extends BaseRecord> = {
 	__record__?: T;
 } & string;
 
+export type PrefixedSortItem<T> = T extends string ? `${'+' | '-'}${T}` : never;
+
 export function sort<T extends BaseRecord>(
-	...sorters: Array<SortParam<T> | `${'+' | '-'}${keyof T & string}`>
+	...sorters: Array<SortParam<T> | PrefixedSortItem<keyof T>>
 ): SortParam<T> {
 	return sorters.filter(Boolean).join(',');
 }

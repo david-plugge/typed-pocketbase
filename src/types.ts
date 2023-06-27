@@ -1,17 +1,60 @@
 import { Record as PocketBaseRecord } from 'pocketbase';
 
-type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
+export type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
+export type ArrayInnerType<T> = T extends Array<infer V> ? V : T;
+export type Values<T> = T[keyof T];
+export type Overide<A, B> = Simplify<Omit<A, keyof B> & B>;
+export type RemoveIndex<T> = {
+	[K in keyof T as string extends K
+		? never
+		: number extends K
+		? never
+		: symbol extends K
+		? never
+		: K]: T[K];
+};
+export type LooseAutocomplete<T> = T | (string & {});
+export type UnionToIntersection<T> = (
+	T extends any ? (x: T) => any : never
+) extends (x: infer R) => any
+	? R
+	: never;
 
 export type BaseRecord = Record<string, any>;
 
+export type BaseSystemFields = {
+	id: string;
+	created: string;
+	updated: string;
+};
+
+export interface GenericCollection {
+	collectionId: string;
+	collectionName: string;
+	response: BaseRecord;
+	create?: BaseRecord;
+	update?: BaseRecord;
+	relations: Record<string, GenericCollection | GenericCollection[]>;
+}
+
+export interface GenericSchema {
+	[K: string]: GenericCollection;
+}
+
 export type TypedRecord<
-	T,
-	Keys extends keyof T = keyof T,
-	Data = Simplify<Pick<T, Keys>>
-> = Data & {
-	export(): Data;
-	$export(): Data;
-} & Omit<PocketBaseRecord, 'export' | '$export'>;
+	Data extends BaseRecord,
+	Expand extends GenericExpand = {}
+> = Pick<PocketBaseRecord, 'load' | '$load' | '$isNew'> &
+	Data & {
+		load(data: Data): void;
+		$load(data: Data): void;
+		clone(): TypedRecord<Data, Expand>;
+		$clone(): TypedRecord<Data, Expand>;
+		export(): Data;
+		$export(): Data;
+
+		expand: Expand;
+	};
 
 export interface SystemFields {
 	id: string;
@@ -20,3 +63,53 @@ export interface SystemFields {
 }
 
 export type BaseCollectionRecords = Record<string, BaseRecord>;
+
+export type Fields<T extends GenericCollection> = keyof T['response'];
+export type Columns<T extends GenericCollection> = T['response'];
+
+export type Expands<T extends GenericCollection> = {
+	[K in keyof T['relations']]?: T['relations'][K] extends GenericCollection[]
+		? TypedRecord<
+				T['relations'][K][number],
+				Expands<T['relations'][K][number]>
+		  >[]
+		: T['relations'][K] extends GenericCollection
+		? TypedRecord<T['relations'][K], Expands<T['relations'][K]>>
+		: never;
+};
+
+export type GenericExpand = Record<
+	string,
+	TypedRecord<any> | TypedRecord<any>[]
+>;
+
+type JoinPath<Parts extends string[]> = Parts extends [
+	infer A extends string,
+	...infer Rest extends string[]
+]
+	? Rest['length'] extends 0
+		? A
+		: `${A}.${JoinPath<Rest>}`
+	: never;
+
+type _RecordWithExpandToDotPath<
+	T extends GenericCollection,
+	Path extends string[] = []
+> = {
+	[K in keyof T['response'] as JoinPath<
+		[...Path, K & string]
+	>]: T['response'][K];
+} & (Path['length'] extends 4 // Supports up to 6-levels depth nested relations expansion.
+	? {}
+	: UnionToIntersection<
+			Values<{
+				[K in keyof T['relations']]: _RecordWithExpandToDotPath<
+					ArrayInnerType<T['relations'][K]>,
+					[...Path, K & string]
+				>;
+			}>
+	  >);
+
+export type RecordWithExpandToDotPath<T extends GenericCollection> = Simplify<
+	_RecordWithExpandToDotPath<T>
+>;
