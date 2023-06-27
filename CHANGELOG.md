@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.3-next.2
+
+### Patch Changes
+
+-   export TypedRecord
+
 ## 0.0.3-next.1
 
 ### Patch Changes
