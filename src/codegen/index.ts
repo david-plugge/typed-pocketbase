@@ -112,7 +112,7 @@ async function generateTypes({ url, email, password, out }: CliOptions) {
 					thumbs:
 						field.options.thumbs
 							?.map((t: string) => `'${t}'`)
-							.join(' | ') ?? 'never'
+							.join(' | ') || 'never'
 				});
 			}
 
