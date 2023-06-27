@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.3-next.3
+
+### Patch Changes
+
+-   rework codegen cli and support all field types and modifiers
+
 ## 0.0.3-next.2
 
 ### Patch Changes

@@ -5,6 +5,7 @@
     "typed-pocketbase": "0.0.2"
   },
   "changesets": [
+    "breezy-beers-cough",
     "dry-lies-juggle",
     "early-grapes-protect",
     "fresh-pugs-repair"
