@@ -17,8 +17,8 @@
 		"src"
 	],
 	"type": "module",
-	"main": "./dist/client/index.js",
-	"module": "./dist/client/index.mjs",
+	"main": "./dist/client/index.cjs",
+	"module": "./dist/client/index.js",
 	"types": "./dist/client/index.d.ts",
 	"bin": {
 		"typed-pocketbase": "dist/codegen/index.js"
