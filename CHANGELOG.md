@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.3-next.1
+
+### Patch Changes
+
+-   fix entrypoints and file thumbs type when none are specified
+
 ## 0.0.3-next.0
 
 ### Patch Changes
