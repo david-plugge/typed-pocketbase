@@ -1,5 +1,14 @@
 # typed-pocketbase
 
+## 0.0.3
+
+### Patch Changes
+
+-   dd52f65: rework codegen cli and support all field types and modifiers
+-   4201a28: export TypedRecord
+-   5b60b0c: fix entrypoints and file thumbs type when none are specified
+-   376dc88: Add expand and nested filter support
+
 ## 0.0.3-next.3
 
 ### Patch Changes
