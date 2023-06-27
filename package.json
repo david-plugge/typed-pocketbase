@@ -21,7 +21,7 @@
 	"module": "./dist/client/index.js",
 	"types": "./dist/client/index.d.ts",
 	"bin": {
-		"typed-pocketbase": "dist/codegen/index.js"
+		"typed-pocketbase": "dist/codegen/cli.js"
 	},
 	"scripts": {
 		"build": "tsup",
