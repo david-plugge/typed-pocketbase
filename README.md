@@ -27,7 +27,9 @@ Generate the types:
 npx typed-pocketbase --email admin@mail.com --password supersecretpassword -o Database.d.ts
 ```
 
-Create a PocketBase client and add types:
+The codegen tool will look for `POCKETBASE_EMAIL` and `POCKETBASE_PASSWORD` environment variables if the email or password are not passed using cli options.
+
+Create a PocketBase client:
 
 ```ts
 import PocketBase from 'pocketbase';
@@ -81,13 +83,14 @@ db.collection('posts').getFullList({
 
 ## Filtering columns
 
-Use the `and`, `or` and some other utility function to filter rows:
+Use the `and`, `or` and other utility functions to filter rows:
 
 ```ts
 import { and, or, eq } from 'typed-pocketbase';
 
 // get all posts created in 2022
 db.collection('posts').getFullList({
+	// a "manual" filter is a tuple of length 3
 	filter: and(['date', '<', '2023-01-01'], ['data', '>=', '2022-01-01'])
 });
 
@@ -127,16 +130,21 @@ db.collection('posts').getFullList({
 });
 ```
 
-Most filter operators are available as a short hand.
+Most filter operators are available as short hand function.
 
 Visit the [pocketbase documentation](https://pocketbase.io/docs/api-records/) to find out about all filters in the `List/Search records` section.
 
 ## Sorting rows
 
-Use the `sort` function to sort the rows:
+Use `sort`, `asc` and `desc` to sort the rows:
 
 ```ts
 import { sort, asc, desc } from 'typed-pocketbase';
+
+db.collection('posts').getFullList({
+	// sort by descending 'date'
+	sort: desc('date')
+});
 
 db.collection('posts').getFullList({
 	// sort by descending 'date' and ascending 'title'
@@ -169,7 +177,7 @@ db.collection('posts').getFullList({
 
 Use the `expand` function to expand relations:
 
-**Note:** Don´t use `fields` when expanding as fields only works for the top level
+**Note:** Don´t use `fields` when expanding as fields only works for the top level and `expand` would end up as an empty object
 
 ```ts
 import { expand } from 'typed-pocketbase';
