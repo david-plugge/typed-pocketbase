@@ -7,7 +7,7 @@ export { fields } from './fields.js';
 export { and, or, eq, gt, gte, like, lt, lte, neq, nlike } from './filter.js';
 export { expand } from './expand.js';
 export { asc, desc, sort } from './sort.js';
-export { GenericSchema, GenericCollection } from './types.js';
+export { GenericSchema, GenericCollection, TypedRecord } from './types.js';
 
 // @ts-expect-error typescript...
 export interface TypedPocketBase<Schema extends GenericSchema>
