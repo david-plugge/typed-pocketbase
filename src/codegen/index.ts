@@ -249,15 +249,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			const singleType = field.options.values
 				.map((v) => `'${v}'`)
 				.join(' | ');
-			const multiple = field.options.maxSelect > 1;
-			const type = multiple
-				? `MaybeArray<${singleType}>`
-				: `${singleType}`;
+			const single = field.options.maxSelect === 1;
+			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
-			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addResponse(single ? singleType : `Array<${singleType}>`);
 			addCreate(type);
 			addUpdate(type);
-			if (multiple) {
+			if (!single) {
 				addUpdate(type, `'${field.name}+'`);
 				addUpdate(type, `'${field.name}-'`);
 			}
@@ -266,15 +264,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 		}
 		case 'relation': {
 			const singleType = 'string';
-			const multiple = field.options.maxSelect > 1;
-			const type = multiple
-				? `MaybeArray<${singleType}>`
-				: `${singleType}`;
+			const single = field.options.maxSelect === 1;
+			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
-			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addResponse(single ? singleType : `Array<${singleType}>`);
 			addCreate(type);
 			addUpdate(type);
-			if (multiple) {
+			if (!single) {
 				addUpdate(type, `'${field.name}+'`);
 				addUpdate(type, `'${field.name}-'`);
 			}
@@ -282,15 +278,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 		}
 		case 'file': {
 			const singleType = 'string';
-			const multiple = field.options.maxSelect > 1;
-			const type = multiple
-				? `MaybeArray<${singleType}>`
-				: `${singleType}`;
+			const single = field.options.maxSelect === 1;
+			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
-			addResponse(multiple ? `(${singleType})[]` : singleType);
+			addResponse(single ? singleType : `Array<${singleType}>`);
 			addCreate(type);
 			addUpdate(type);
-			if (multiple) {
+			if (!single) {
 				addUpdate(`'${field.name}-'`, type);
 			}
 			break;
