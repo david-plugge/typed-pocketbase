@@ -218,9 +218,14 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 	switch (field.type) {
 		case 'text':
 		case 'editor': // rich text
-		case 'email':
-		case 'url': {
+		case 'email': {
 			addAll('string');
+			break;
+		}
+		case 'url': {
+			addCreate('string | URL');
+			addUpdate('string | URL');
+			addResponse('string');
 			break;
 		}
 		case 'date': {
@@ -290,8 +295,16 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			}
 			break;
 		}
+		case 'json': {
+			addAll('any');
+			break;
+		}
 		default:
-			throw new Error(`Unknown type ${field.type}`);
+			console.warn(`Unknown type ${(field as { type: string }).type}.`);
+			console.warn(
+				`Feel free to open an issue about this warning https://github.com/david-plugge/typed-pocketbase/issues.`
+			);
+			addAll('unknown');
 	}
 }
 
