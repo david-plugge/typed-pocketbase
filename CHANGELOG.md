@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.6
+
+### Patch Changes
+
+-   4b59926: fix multiple field type
+
 ## 0.0.5
 
 ### Patch Changes
