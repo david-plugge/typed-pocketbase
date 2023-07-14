@@ -219,9 +219,14 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 		case 'text':
 		case 'editor': // rich text
 		case 'email':
-		case 'url':
-		case 'date': {
+		case 'url': {
 			addAll('string');
+			break;
+		}
+		case 'date': {
+			addCreate('string | Date');
+			addUpdate('string | Date');
+			addResponse('string');
 			break;
 		}
 		case 'number': {

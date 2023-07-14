@@ -32,7 +32,7 @@ type MaybeArray<T> = T | T[];
 // ===== users =====
 
 export type UsersResponse = {
-    name?: string;
+	name?: string;
 	avatar?: string;
 } & AuthCollectionRecord;
 
@@ -61,7 +61,7 @@ export type UsersCollection = {
 // ===== posts =====
 
 export type PostsResponse = {
-    title: string;
+	title: string;
 	slug: string;
 	date?: string;
 	content?: string;
@@ -72,7 +72,7 @@ export type PostsResponse = {
 export type PostsCreate = {
 	title: string;
 	slug: string;
-	date?: string;
+	date?: string | Date;
 	content?: string;
 	published?: boolean;
 	owner?: string;
@@ -81,7 +81,7 @@ export type PostsCreate = {
 export type PostsUpdate = {
 	title?: string;
 	slug?: string;
-	date?: string;
+	date?: string | Date;
 	content?: string;
 	published?: boolean;
 	owner?: string;
@@ -99,51 +99,9 @@ export type PostsCollection = {
 	};
 };
 
-// ===== usis =====
-
-export type UsisResponse = {
-    avatar?: string;
-} & ViewCollectionRecord;
-
-export type UsisCollection = {
-	type: 'view';
-	collectionId: 'bubx07xyejsas8a';
-	collectionName: 'usis';
-	response: UsisResponse;
-	relations: {};
-};
-
-// ===== test =====
-
-export type TestResponse = {
-    options?: ('a' | 'b' | 'c' | 'd')[];
-} & BaseCollectionRecord;
-
-export type TestCreate = {
-	options?: MaybeArray<'a' | 'b' | 'c' | 'd'>;
-};
-
-export type TestUpdate = {
-	options?: MaybeArray<'a' | 'b' | 'c' | 'd'>;
-	'options+'?: MaybeArray<'a' | 'b' | 'c' | 'd'>;
-	'options-'?: MaybeArray<'a' | 'b' | 'c' | 'd'>;
-};
-
-export type TestCollection = {
-	type: 'base';
-	collectionId: '800ro086vmm2fbj';
-	collectionName: 'test';
-	response: TestResponse;
-	create: TestCreate;
-	update: TestUpdate;
-	relations: {};
-};
-
 // ===== Schema =====
 
 export type Schema = {
 	users: UsersCollection;
 	posts: PostsCollection;
-	usis: UsisCollection;
-	test: TestCollection;
 };
