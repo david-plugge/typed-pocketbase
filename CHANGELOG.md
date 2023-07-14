@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.5
+
+### Patch Changes
+
+-   19bce54: fix multiple relation type generation
+
 ## 0.0.4
 
 ### Patch Changes
