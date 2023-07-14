@@ -58,7 +58,7 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 					relations.push({
 						name: field.name,
 						target: `${target.typeName}Collection${
-							field.options.maxSelect > 1 ? '[]' : ''
+							field.options.maxSelect === 1 ? '' : '[]'
 						}`
 					});
 
