@@ -1,5 +1,12 @@
 # typed-pocketbase
 
+## 0.0.4
+
+### Patch Changes
+
+-   7aa71f3: support json fields and Date and URL objects
+-   0a96bf9: allow Date type for date fields
+
 ## 0.0.3
 
 ### Patch Changes
