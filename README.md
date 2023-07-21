@@ -10,13 +10,13 @@ Add types to the [PocketBase JavaScript SDK](https://github.com/pocketbase/js-sd
 
 ```bash
 # npm
-npm i typed-pocketbase@next
+npm i typed-pocketbase
 
 # pnpm
-pnpm i typed-pocketbase@next
+pnpm i typed-pocketbase
 
 # yarn
-yarn add typed-pocketbase@next
+yarn add typed-pocketbase
 ```
 
 ## Usage
