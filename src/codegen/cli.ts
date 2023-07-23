@@ -2,6 +2,7 @@ import sade from 'sade';
 import { generateTypes } from './index.js';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
+import PocketBase, { Collection } from 'pocketbase';
 
 interface CliOptions {
 	url?: string;
@@ -43,11 +44,10 @@ sade(PKG_NAME, true)
 					`required option '-p, --password' not specified and 'POCKETBASE_PASSWORD' env not set`
 				);
 
-			const definition = await generateTypes({
-				url,
-				email,
-				password
-			});
+			const pb = new PocketBase(url);
+			await pb.admins.authWithPassword(email, password);
+
+			const definition = await generateTypes(pb);
 
 			if (out) {
 				const file = resolve(out);

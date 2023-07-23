@@ -78,10 +78,6 @@ export interface TextField extends GenericField {
 
 export interface EditorField extends GenericField {
 	type: 'editor';
-	options: {
-		exceptDomains: [];
-		onlyDomains: [];
-	};
 }
 
 export interface NumberField extends GenericField {
