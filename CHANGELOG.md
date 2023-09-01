@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.7
+
+### Patch Changes
+
+-   3c875d8: add shebang
+
 ## 0.0.6
 
 ### Patch Changes
