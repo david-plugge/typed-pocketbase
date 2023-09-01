@@ -17,6 +17,9 @@ export default defineConfig([
 		dts: false,
 		sourcemap: false,
 		clean: true,
+		banner: {
+			js: '#!/usr/bin/env node'
+		},
 		define: {
 			PKG_NAME: JSON.stringify(name),
 			PKG_VERSION: JSON.stringify(version)
