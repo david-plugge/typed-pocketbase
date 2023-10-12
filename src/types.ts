@@ -1,4 +1,4 @@
-import { Record as PocketBaseRecord } from 'pocketbase';
+import { RecordModel as PocketBaseRecord } from 'pocketbase';
 
 export type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
 export type ArrayInnerType<T> = T extends Array<infer V> ? V : T;
