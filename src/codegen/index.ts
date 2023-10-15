@@ -285,7 +285,7 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			addCreate(type);
 			addUpdate(type);
 			if (!single) {
-				addUpdate(`'${field.name}-'`, type);
+				addUpdate(type, `'${field.name}-'`);
 			}
 			break;
 		}
