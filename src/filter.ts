@@ -49,19 +49,15 @@ export function and<T extends BaseRecord>(
 	...filters: Filter<T>[]
 ): FilterParam<T> {
 	const str = serializeFilters(filters).join(' && ');
-
+	if (!str.length) return ''
 	return `(${str})`;
 }
 
 export function or<T extends BaseRecord>(
 	...filters: Filter<T>[]
 ): FilterParam<T> {
-	const str = filters
-		.filter(Boolean)
-		.map((filter) =>
-			Array.isArray(filter) ? serializeFilter(filter) : filter
-		)
-		.join(' || ');
+	const str = serializeFilters(filters).join(' || ');
+	if (!str.length) return ''
 	return `(${str})`;
 }
 
