@@ -1,11 +1,5 @@
 # typed-pocketbase
 
-## 0.0.8
-
-### Patch Changes
-
--   Fix: Filter with empty and()/or() results in Invalid filter parameters.
-
 ## 0.0.7
 
 ### Patch Changes
