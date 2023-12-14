@@ -145,8 +145,8 @@ export type ${t.typeName}Response = {
 			t.type === 'base'
 				? 'BaseCollectionRecord'
 				: t.type === 'auth'
-				? 'AuthCollectionRecord'
-				: 'ViewCollectionRecord'
+					? 'AuthCollectionRecord'
+					: 'ViewCollectionRecord'
 		};
 ${
 	// view collections are readonly
@@ -167,12 +167,12 @@ export type ${t.typeName}Collection = {
 	collectionId: '${t.id}';
 	collectionName: '${t.name}';
 	response: ${t.typeName}Response;${
-			t.type === 'view'
-				? ''
-				: `
+		t.type === 'view'
+			? ''
+			: `
 	create: ${t.typeName}Create;
 	update: ${t.typeName}Update;`
-		}
+	}
 	relations: ${
 		t.relations.length === 0
 			? '{}'

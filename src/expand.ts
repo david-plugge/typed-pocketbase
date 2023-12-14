@@ -26,8 +26,8 @@ type RelationToTypedRecord<
 > = T extends GenericCollection[]
 	? TypedRecord<T[number]['response'], E>[]
 	: T extends GenericCollection
-	? TypedRecord<T['response'], E>
-	: never;
+		? TypedRecord<T['response'], E>
+		: never;
 
 export type UnpackExpand<
 	T extends GenericCollection,
