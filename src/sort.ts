@@ -1,8 +1,16 @@
-import { BaseRecord } from './types.js';
+import {
+	BaseRecord,
+	GenericCollection,
+	RecordWithExpandToDotPath
+} from './types.js';
 
 export type SortParam<T extends BaseRecord> = {
 	__record__?: T;
 } & string;
+
+export type Sort<T extends GenericCollection> = SortParam<
+	RecordWithExpandToDotPath<T>
+>;
 
 export type PrefixedSortItem<T> = T extends string ? `${'+' | '-'}${T}` : never;
 

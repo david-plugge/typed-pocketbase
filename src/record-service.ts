@@ -15,7 +15,7 @@ import {
 	RecordWithExpandToDotPath
 } from './types.js';
 import { FieldsParam } from './fields.js';
-import { Filter, FilterParam } from './filter.js';
+import { FilterInput, FilterParam } from './filter.js';
 import { SortParam } from './sort.js';
 import { ExpandParam } from './expand.js';
 
@@ -58,7 +58,7 @@ export interface TypedRecordService<Collection extends GenericCollection>
 		Select extends Fields<Collection> = Fields<Collection>,
 		Expand extends GenericExpand = {}
 	>(
-		filter: Filter<RecordWithExpandToDotPath<Collection>>,
+		filter: FilterInput<RecordWithExpandToDotPath<Collection>>,
 		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
 	): Promise<
 		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
