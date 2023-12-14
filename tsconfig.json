@@ -3,7 +3,7 @@
 		"esm": true
 	},
 	"compilerOptions": {
-		"module": "ESNext",
+		"module": "NodeNext",
 		"target": "ESNext",
 		"moduleResolution": "NodeNext",
 		"forceConsistentCasingInFileNames": true,
