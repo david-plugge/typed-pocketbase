@@ -140,7 +140,7 @@ ${tables
 // ===== ${t.name} =====
 
 export type ${t.typeName}Response = {
-    ${t.columns.response.join('\n' + indent)}
+	${t.columns.response.join('\n' + indent)}
 } & ${
 			t.type === 'base'
 				? 'BaseCollectionRecord'

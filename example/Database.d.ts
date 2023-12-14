@@ -32,7 +32,7 @@ type MaybeArray<T> = T | T[];
 // ===== users =====
 
 export type UsersResponse = {
-    name?: string;
+	name?: string;
 	avatar?: string;
 } & AuthCollectionRecord;
 
@@ -61,7 +61,7 @@ export type UsersCollection = {
 // ===== posts =====
 
 export type PostsResponse = {
-    title: string;
+	title: string;
 	slug: string;
 	date?: string;
 	content?: string;
