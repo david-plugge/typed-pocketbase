@@ -1,4 +1,4 @@
-import { Record as PocketBaseRecord } from 'pocketbase';
+import { RecordModel as PocketBaseRecord } from 'pocketbase';
 
 export type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
 export type ArrayInnerType<T> = T extends Array<infer V> ? V : T;
@@ -8,10 +8,10 @@ export type RemoveIndex<T> = {
 	[K in keyof T as string extends K
 		? never
 		: number extends K
-			? never
-			: symbol extends K
-				? never
-				: K]: T[K];
+		? never
+		: symbol extends K
+		? never
+		: K]: T[K];
 };
 export type LooseAutocomplete<T> = T | (string & {});
 export type UnionToIntersection<T> = (
@@ -72,10 +72,10 @@ export type Expands<T extends GenericCollection> = {
 		? TypedRecord<
 				T['relations'][K][number],
 				Expands<T['relations'][K][number]>
-			>[]
+		  >[]
 		: T['relations'][K] extends GenericCollection
-			? TypedRecord<T['relations'][K], Expands<T['relations'][K]>>
-			: never;
+		? TypedRecord<T['relations'][K], Expands<T['relations'][K]>>
+		: never;
 };
 
 export type GenericExpand = Record<
@@ -108,7 +108,7 @@ type _RecordWithExpandToDotPath<
 					[...Path, K & string]
 				>;
 			}>
-		>);
+	  >);
 
 export type RecordWithExpandToDotPath<T extends GenericCollection> = Simplify<
 	_RecordWithExpandToDotPath<T>

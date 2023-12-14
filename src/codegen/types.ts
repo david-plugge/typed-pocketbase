@@ -1,20 +1,9 @@
+import { SchemaField, CollectionModel } from 'pocketbase';
+
 export type CollectionType = 'auth' | 'view' | 'base';
 
-interface GenericCollection {
-	id: string;
-	created: string;
-	updated: string;
-	name: string;
-	type: CollectionType;
-	system: boolean;
+interface GenericCollection extends CollectionModel {
 	schema: Field[];
-	indexes: string[];
-	listRule: string | null;
-	viewRule: string | null;
-	createRule: string | null;
-	updateRule: string | null;
-	deleteRule: string | null;
-	options: {};
 }
 
 export interface BaseCollection extends GenericCollection {
@@ -58,16 +47,7 @@ export type FieldType =
 	| 'file'
 	| 'json';
 
-interface GenericField {
-	id: string;
-	name: string;
-	type: FieldType;
-	system: boolean;
-	required: boolean;
-	options: {};
-}
-
-export interface TextField extends GenericField {
+export interface TextField extends SchemaField {
 	type: 'text';
 	options: {
 		min: number | null;
@@ -76,7 +56,7 @@ export interface TextField extends GenericField {
 	};
 }
 
-export interface EditorField extends GenericField {
+export interface EditorField extends SchemaField {
 	type: 'editor';
 	options: {
 		exceptDomains: [];
@@ -84,7 +64,7 @@ export interface EditorField extends GenericField {
 	};
 }
 
-export interface NumberField extends GenericField {
+export interface NumberField extends SchemaField {
 	type: 'number';
 	options: {
 		min: number | null;
@@ -92,11 +72,12 @@ export interface NumberField extends GenericField {
 	};
 }
 
-export interface BoolField extends GenericField {
+export interface BoolField extends SchemaField {
 	type: 'bool';
+	options: {};
 }
 
-export interface EmailField extends GenericField {
+export interface EmailField extends SchemaField {
 	type: 'email';
 	options: {
 		exceptDomains: [] | null;
@@ -104,7 +85,7 @@ export interface EmailField extends GenericField {
 	};
 }
 
-export interface UrlField extends GenericField {
+export interface UrlField extends SchemaField {
 	type: 'url';
 	options: {
 		exceptDomains: [];
@@ -112,7 +93,7 @@ export interface UrlField extends GenericField {
 	};
 }
 
-export interface DateField extends GenericField {
+export interface DateField extends SchemaField {
 	type: 'date';
 	options: {
 		min: string;
@@ -120,7 +101,7 @@ export interface DateField extends GenericField {
 	};
 }
 
-export interface SelectField extends GenericField {
+export interface SelectField extends SchemaField {
 	type: 'select';
 	options: {
 		maxSelect: number;
@@ -128,30 +109,33 @@ export interface SelectField extends GenericField {
 	};
 }
 
-export interface RelationField extends GenericField {
+export interface RelationField extends SchemaField {
 	type: 'relation';
 	options: {
 		collectionId: string;
 		cascadeDelete: boolean;
 		minSelect: number | null;
 		maxSelect: number;
-		displayFields: string[];
+		displayFields: string[] | null;
 	};
 }
 
-export interface FileField extends GenericField {
+export interface FileField extends SchemaField {
 	type: 'file';
 	options: {
 		maxSelect: number;
 		maxSize: number;
-		mimeType: string[];
-		thumbs: string[];
+		mimeTypes: string[];
+		thumbs: string[] | null;
 		protected: boolean;
 	};
 }
 
-export interface JsonField extends GenericField {
+export interface JsonField extends SchemaField {
 	type: 'json';
+	options: {
+		maxSize: number;
+	};
 }
 
 export type Field =

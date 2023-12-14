@@ -18,15 +18,28 @@ interface Relation {
 	target: string;
 }
 
+generateTypes({
+	url: 'http://localhost:8090',
+	email: 'admin@example.com',
+	password: 'secretpassword'
+});
+
 export async function generateTypes({ url, email, password }: GenerateOptions) {
 	const pb = new PocketBase(url);
 	await pb.admins.authWithPassword(email, password);
 
-	const collections = await pb.collections
-		.getFullList()
-		.then((collections) =>
-			collections.map((c) => c.export() as Collection)
-		);
+	const collections: Collection[] = await pb.collections.getFullList();
+
+	// collections.forEach((c) => {
+	// 	console.log(c.schema);
+	// });
+
+	const data = await pb.collection('test').getOne('ctc37gu21lv4is8', {
+		expand: 'hello(field)'
+	});
+	console.log(JSON.stringify(data, null, 2));
+
+	return '';
 
 	const deferred: Array<() => void> = [];
 
@@ -145,8 +158,8 @@ export type ${t.typeName}Response = {
 			t.type === 'base'
 				? 'BaseCollectionRecord'
 				: t.type === 'auth'
-					? 'AuthCollectionRecord'
-					: 'ViewCollectionRecord'
+				? 'AuthCollectionRecord'
+				: 'ViewCollectionRecord'
 		};
 ${
 	// view collections are readonly
@@ -167,12 +180,12 @@ export type ${t.typeName}Collection = {
 	collectionId: '${t.id}';
 	collectionName: '${t.name}';
 	response: ${t.typeName}Response;${
-		t.type === 'view'
-			? ''
-			: `
+			t.type === 'view'
+				? ''
+				: `
 	create: ${t.typeName}Create;
 	update: ${t.typeName}Update;`
-	}
+		}
 	relations: ${
 		t.relations.length === 0
 			? '{}'

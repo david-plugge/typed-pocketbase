@@ -31,17 +31,17 @@
 		"ci:release": "changeset publish"
 	},
 	"peerDependencies": {
-		"pocketbase": "^0.15.2"
+		"pocketbase": "^0.20.0"
 	},
 	"dependencies": {
 		"sade": "^1.8.1"
 	},
 	"devDependencies": {
-		"@types/node": "^18.13.0",
 		"@changesets/cli": "^2.27.1",
-		"pocketbase": "^0.15.2",
-		"typescript": "^5.3.3",
+		"@types/node": "^20.10.4",
+		"pocketbase": "^0.20.1",
+		"prettier": "^3.1.1",
 		"tsup": "^8.0.1",
-		"prettier": "^3.1.1"
+		"typescript": "^5.3.3"
 	}
 }
