@@ -1,5 +1,3 @@
-import { RecordModel as PocketBaseRecord } from 'pocketbase';
-
 export type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
 export type ArrayInnerType<T> = T extends Array<infer V> ? V : T;
 export type Values<T> = T[keyof T];
@@ -44,17 +42,9 @@ export interface GenericSchema {
 export type TypedRecord<
 	Data extends BaseRecord,
 	Expand extends GenericExpand = {}
-> = Pick<PocketBaseRecord, 'load' | '$load' | '$isNew'> &
-	Data & {
-		load(data: Data): void;
-		$load(data: Data): void;
-		clone(): TypedRecord<Data, Expand>;
-		$clone(): TypedRecord<Data, Expand>;
-		export(): Data;
-		$export(): Data;
-
-		expand: Expand;
-	};
+> = Data & {
+	expand: Expand;
+};
 
 export interface SystemFields {
 	id: string;
