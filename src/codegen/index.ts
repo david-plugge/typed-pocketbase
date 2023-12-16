@@ -127,6 +127,11 @@ type BaseCollectionRecord = {
 	updated: string;
 };
 
+// https://pocketbase.io/docs/api-records/#create-record
+type BaseCollectionRecordCreate = {
+	id?: string;
+};
+
 // https://pocketbase.io/docs/collections/#auth-collection
 type AuthCollectionRecord = {
 	id: string;
@@ -136,6 +141,27 @@ type AuthCollectionRecord = {
 	email: string;
 	emailVisibility: boolean;
 	verified: boolean;
+};
+
+// https://pocketbase.io/docs/api-records/#create-record
+type AuthCollectionRecordCreate = {
+	id?: string;
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password: string;
+	passwordConfirm: string;
+};
+
+// https://pocketbase.io/docs/api-records/#update-record
+type AuthCollectionRecordUpdate = {
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password?: string;
+	passwordConfirm?: string;
 };
 
 // https://pocketbase.io/docs/collections/#view-collection
@@ -170,11 +196,11 @@ ${
 		: `
 export type ${t.typeName}Create = {
 	${t.columns.create.join('\n' + indent)}
-};
+} & ${t.type === "base" ? "BaseCollectionRecordCreate" : "AuthCollectionRecordCreate"};
 
 export type ${t.typeName}Update = {
 	${t.columns.update.join('\n' + indent)}
-};
+}${t.type === "base" ? "" : " & AuthCollectionRecordUpdate" };
 `
 }
 export type ${t.typeName}Collection = {
