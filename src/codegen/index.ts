@@ -245,7 +245,7 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 	const req = field.required ? '' : '?';
 
 	const addResponse = (type: string, name = field.name) =>
-		response.push(`${name}${req}: ${type};`);
+		response.push(`${name}: ${type};`);
 	const addCreate = (type: string, name = field.name) =>
 		create.push(`${name}${req}: ${type};`);
 	const addUpdate = (type: string, name = field.name) =>
@@ -287,10 +287,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			break;
 		}
 		case 'select': {
-			const singleType = field.options.values
+			const single = field.options.maxSelect === 1;
+      const values = !field.required && single
+				? ["", ...field.options.values]
+				: field.options.values;
+			const singleType = values
 				.map((v) => `'${v}'`)
 				.join(' | ');
-			const single = field.options.maxSelect === 1;
 			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
 			addResponse(single ? singleType : `Array<${singleType}>`);
