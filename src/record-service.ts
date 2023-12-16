@@ -114,7 +114,14 @@ export interface TypedBaseQueryParams<
 	S extends Fields<T>
 > {
 	fields?: FieldsParam<Columns<T>, S>;
+	requestKey?: string | null;
+	/**
+	 * @deprecated use `requestKey:null` instead
+	 */
 	$autoCancel?: boolean;
+	/**
+	 * @deprecated use `requestKey:string` instead
+	 */
 	$cancelKey?: string;
 }
 
