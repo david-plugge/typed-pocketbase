@@ -192,7 +192,7 @@ export type ${t.typeName}Collection = {
 			: `{
 		${t.relations
 			.map((col) => `${col.name}: ${col.target};`)
-			.join('\n' + ' '.repeat(8))}
+			.join('\n' + indent.repeat(2))}
 	}`
 	};
 };
