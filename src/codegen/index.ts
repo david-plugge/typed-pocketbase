@@ -154,6 +154,8 @@ ${tables
 
 export type ${t.typeName}Response = {
 	${t.columns.response.join('\n' + indent)}
+	collectionId: '${t.id}';
+	collectionName: '${t.name}';
 } & ${
 			t.type === 'base'
 				? 'BaseCollectionRecord'
