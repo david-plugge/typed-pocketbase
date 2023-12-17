@@ -1,17 +1,19 @@
 import { RecordModel as PocketBaseRecord } from 'pocketbase';
 
-export type Simplify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
+export type Prettify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
+export type MaybeArray<T> = T | T[];
+export type MaybeMakeArray<T, Out> = T extends any[] ? Out[] : Out;
 export type ArrayInnerType<T> = T extends Array<infer V> ? V : T;
 export type Values<T> = T[keyof T];
-export type Overide<A, B> = Simplify<Omit<A, keyof B> & B>;
+export type Overide<A, B> = Prettify<Omit<A, keyof B> & B>;
 export type RemoveIndex<T> = {
 	[K in keyof T as string extends K
 		? never
 		: number extends K
-		? never
-		: symbol extends K
-		? never
-		: K]: T[K];
+			? never
+			: symbol extends K
+				? never
+				: K]: T[K];
 };
 export type LooseAutocomplete<T> = T | (string & {});
 export type UnionToIntersection<T> = (
@@ -28,18 +30,19 @@ export type BaseSystemFields = {
 	updated: string;
 };
 
-export interface GenericCollection {
+export type GenericCollection = {
+	type: string;
 	collectionId: string;
 	collectionName: string;
 	response: BaseRecord;
 	create?: BaseRecord;
 	update?: BaseRecord;
 	relations: Record<string, GenericCollection | GenericCollection[]>;
-}
+};
 
-export interface GenericSchema {
+export type GenericSchema = {
 	[K: string]: GenericCollection;
-}
+};
 
 export type TypedRecord<
 	Data extends BaseRecord,
@@ -72,10 +75,10 @@ export type Expands<T extends GenericCollection> = {
 		? TypedRecord<
 				T['relations'][K][number],
 				Expands<T['relations'][K][number]>
-		  >[]
+			>[]
 		: T['relations'][K] extends GenericCollection
-		? TypedRecord<T['relations'][K], Expands<T['relations'][K]>>
-		: never;
+			? TypedRecord<T['relations'][K], Expands<T['relations'][K]>>
+			: never;
 };
 
 export type GenericExpand = Record<
@@ -108,8 +111,8 @@ type _RecordWithExpandToDotPath<
 					[...Path, K & string]
 				>;
 			}>
-	  >);
+		>);
 
-export type RecordWithExpandToDotPath<T extends GenericCollection> = Simplify<
+export type RecordWithExpandToDotPath<T extends GenericCollection> = Prettify<
 	_RecordWithExpandToDotPath<T>
 >;

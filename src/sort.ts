@@ -8,9 +8,9 @@ export type SortParam<T extends BaseRecord> = {
 	__record__?: T;
 } & string;
 
-export type Sort<T extends GenericCollection> = SortParam<
-	RecordWithExpandToDotPath<T>
->;
+export type Sort<T extends GenericCollection> =
+	| SortParam<RecordWithExpandToDotPath<T>>
+	| PrefixedSortItem<keyof RecordWithExpandToDotPath<T>>;
 
 export type PrefixedSortItem<T> = T extends string ? `${'+' | '-'}${T}` : never;
 
