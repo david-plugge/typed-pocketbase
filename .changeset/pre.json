@@ -4,5 +4,7 @@
   "initialVersions": {
     "typed-pocketbase": "0.0.8"
   },
-  "changesets": []
+  "changesets": [
+    "lovely-dancers-clap"
+  ]
 }
