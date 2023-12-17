@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "typed-pocketbase": "0.0.8"
+  },
+  "changesets": []
+}
