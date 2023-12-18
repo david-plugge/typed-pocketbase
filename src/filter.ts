@@ -58,7 +58,7 @@ function serializeFilter([key, op, val]: ActualFilter<any>) {
 	return `${String(key)}${op}${val}`;
 }
 
-function serializeFilters(filters: FilterInput<any>[]) {
+export function serializeFilters(filters: FilterInput<any>[]) {
 	return filters
 		.filter(Boolean)
 		.map((filter) =>

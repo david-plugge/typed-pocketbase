@@ -18,33 +18,15 @@ interface Relation {
 	target: string;
 }
 
-generateTypes({
-	url: 'http://localhost:8090',
-	email: 'admin@example.com',
-	password: 'secretpassword'
-});
-
 export async function generateTypes({ url, email, password }: GenerateOptions) {
 	const pb = new PocketBase(url);
 	await pb.admins.authWithPassword(email, password);
 
 	const collections: Collection[] = await pb.collections.getFullList();
-
-	// collections.forEach((c) => {
-	// 	console.log(c.schema);
-	// });
-
-	const data = await pb.collection('test').getOne('ctc37gu21lv4is8', {
-		expand: 'hello(field)'
-	});
-	console.log(JSON.stringify(data, null, 2));
-
-	return '';
-
 	const deferred: Array<() => void> = [];
 
-	const tables = collections.map((c) => {
-		const typeName = pascalCase(c.name);
+	const tables = collections.map((collection) => {
+		const typeName = pascalCase(collection.name);
 
 		const columns: Columns = {
 			create: [],
@@ -53,19 +35,16 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 		};
 		const relations: Relation[] = [];
 
-		c.schema.forEach((field) => {
+		collection.schema.forEach((field) => {
 			getFieldType(field, columns);
 
 			if (field.type === 'relation') {
 				deferred.push(() => {
 					const target = tableMap.get(field.options.collectionId);
-					const targetCollection = collectionMap.get(
-						field.options.collectionId
-					);
 
-					if (!target || !targetCollection)
+					if (!target)
 						throw new Error(
-							`Collection ${field.options.collectionId} not found for relation ${c.name}.${field.name}`
+							`Collection ${field.options.collectionId} not found for relation ${collection.name}.${field.name}`
 						);
 
 					relations.push({
@@ -80,7 +59,7 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 					 * @see https://pocketbase.io/docs/expanding-relations/#indirect-expand
 					 */
 
-					const indicies = targetCollection.indexes.map(parseIndex);
+					const indicies = collection.indexes.map(parseIndex);
 
 					const isUnique = indicies.some(
 						(i) =>
@@ -91,7 +70,7 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 					);
 
 					target.relations.push({
-						name: `'${c.name}(${field.name})'`,
+						name: `'${collection.name}(${field.name})'`,
 						target: `${typeName}Collection${isUnique ? '' : '[]'}`
 					});
 				});
@@ -99,9 +78,9 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 		});
 
 		return {
-			id: c.id,
-			name: c.name,
-			type: c.type,
+			id: collection.id,
+			name: collection.name,
+			type: collection.type,
 			typeName,
 			columns,
 			relations
@@ -109,7 +88,6 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
 	});
 
 	const tableMap = new Map(tables.map((t) => [t.id, t]));
-	const collectionMap = new Map(collections.map((c) => [c.id, c]));
 
 	deferred.forEach((c) => c());
 
@@ -121,84 +99,110 @@ export async function generateTypes({ url, email, password }: GenerateOptions) {
  */
 
 // https://pocketbase.io/docs/collections/#base-collection
-type BaseCollectionRecord = {
+interface BaseCollectionRecord {
 	id: string;
 	created: string;
 	updated: string;
-};
+	collectionId: string;
+	collectionName: string;
+}
+
+// https://pocketbase.io/docs/api-records/#create-record
+interface BaseCollectionRecordCreate {
+	id?: string;
+}
 
 // https://pocketbase.io/docs/collections/#auth-collection
-type AuthCollectionRecord = {
-	id: string;
-	created: string;
-	updated: string;
+interface AuthCollectionRecord extends BaseCollectionRecord {
 	username: string;
 	email: string;
 	emailVisibility: boolean;
 	verified: boolean;
-};
+}
+
+// https://pocketbase.io/docs/api-records/#create-record
+interface AuthCollectionRecordCreate extends BaseCollectionRecordCreate {
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password: string;
+	passwordConfirm: string;
+}
+
+// https://pocketbase.io/docs/api-records/#update-record
+interface AuthCollectionRecordUpdate {
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password?: string;
+	passwordConfirm?: string;
+}
 
 // https://pocketbase.io/docs/collections/#view-collection
-type ViewCollectionRecord = {
+interface ViewCollectionRecord {
 	id: string;
-};
+}
 
 // utilities
 
 type MaybeArray<T> = T | T[];
 
 ${tables
-	.map((t) =>
-		`
-// ===== ${t.name} =====
-
-export type ${t.typeName}Response = {
-	${t.columns.response.join('\n' + indent)}
-} & ${
+	.map((t) => {
+		const baseRecord =
 			t.type === 'base'
 				? 'BaseCollectionRecord'
 				: t.type === 'auth'
-				? 'AuthCollectionRecord'
-				: 'ViewCollectionRecord'
-		};
+					? 'AuthCollectionRecord'
+					: 'ViewCollectionRecord';
+
+		return `
+// ===== ${t.name} =====
+
+export interface ${t.typeName}Response extends ${baseRecord} {
+	collectionName: '${t.name}';
+	${t.columns.response.join('\n' + indent)}
+}
 ${
 	// view collections are readonly
 	t.type === 'view'
 		? ''
 		: `
-export type ${t.typeName}Create = {
+export interface ${t.typeName}Create extends ${t.type === "base" ? "BaseCollectionRecordCreate" : "AuthCollectionRecordCreate"} {
 	${t.columns.create.join('\n' + indent)}
-};
+}
 
-export type ${t.typeName}Update = {
+export interface ${t.typeName}Update${t.type === "base" ? "" : " extends AuthCollectionRecordUpdate"} {
 	${t.columns.update.join('\n' + indent)}
-};
+}
 `
 }
-export type ${t.typeName}Collection = {
+export interface ${t.typeName}Collection {
 	type: '${t.type}';
-	collectionId: '${t.id}';
+	collectionId: string;
 	collectionName: '${t.name}';
 	response: ${t.typeName}Response;${
-			t.type === 'view'
-				? ''
-				: `
+		t.type === 'view'
+			? ''
+			: `
 	create: ${t.typeName}Create;
 	update: ${t.typeName}Update;`
-		}
+	}
 	relations: ${
 		t.relations.length === 0
-			? '{}'
+			? 'Record<string, never>'
 			: `{
 		${t.relations
 			.map((col) => `${col.name}: ${col.target};`)
-			.join('\n' + ' '.repeat(8))}
+			.join('\n' + indent.repeat(2))}
 	}`
 	};
-};
+}
 
-`.trim()
-	)
+`.trim();
+	})
 	.join('\n\n')}
 
 // ===== Schema =====
@@ -217,7 +221,7 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 	const req = field.required ? '' : '?';
 
 	const addResponse = (type: string, name = field.name) =>
-		response.push(`${name}${req}: ${type};`);
+		response.push(`${name}: ${type};`);
 	const addCreate = (type: string, name = field.name) =>
 		create.push(`${name}${req}: ${type};`);
 	const addUpdate = (type: string, name = field.name) =>
@@ -259,10 +263,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			break;
 		}
 		case 'select': {
-			const singleType = field.options.values
+			const single = field.options.maxSelect === 1;
+      const values = !field.required && single
+				? ["", ...field.options.values]
+				: field.options.values;
+			const singleType = values
 				.map((v) => `'${v}'`)
 				.join(' | ');
-			const single = field.options.maxSelect === 1;
 			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
 			addResponse(single ? singleType : `Array<${singleType}>`);

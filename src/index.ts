@@ -1,8 +1,21 @@
-import PocketBase from 'pocketbase';
+import PocketBase, { RecordModel, RecordService } from 'pocketbase';
 import { GenericSchema } from './types.js';
 import { TypedRecordService } from './record-service.js';
 
-export { fields } from './fields.js';
+export {
+	createOptions,
+	ResolveSelect,
+	ResolveSelectWithExpand,
+	Select,
+	SelectWithExpand,
+	TypedBaseQueryParams,
+	TypedFullListQueryParams,
+	TypedListQueryParams,
+	TypedRecordFullListQueryParams,
+	TypedRecordListQueryParams,
+	TypedRecordQueryParams
+} from './queryParams.js';
+
 export {
 	and,
 	or,
@@ -16,14 +29,13 @@ export {
 	nlike,
 	Filter
 } from './filter.js';
-export { expand } from './expand.js';
 export { asc, desc, sort, Sort } from './sort.js';
 export { GenericSchema, GenericCollection, TypedRecord } from './types.js';
 
-// @ts-expect-error typescript...
 export interface TypedPocketBase<Schema extends GenericSchema>
 	extends PocketBase {
 	collection<C extends keyof Schema>(
 		idOrName: C
 	): TypedRecordService<Schema[C]>;
+	collection<M = RecordModel>(idOrName: string): RecordService<M>;
 }
