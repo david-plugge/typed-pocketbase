@@ -1,165 +1,93 @@
+import { ListResult, RecordAuthResponse, RecordService } from 'pocketbase';
+import { GenericCollection } from './types.js';
+import { Filter } from './filter.js';
 import {
-	ListResult,
-	RecordService,
-	RecordSubscription,
-	UnsubscribeFunc
-} from 'pocketbase';
-import {
-	Simplify,
-	GenericCollection,
-	TypedRecord,
-	Fields,
-	Columns,
-	GenericExpand,
-	LooseAutocomplete,
-	RecordWithExpandToDotPath
-} from './types.js';
-import { FieldsParam } from './fields.js';
-import { FilterInput, FilterParam } from './filter.js';
-import { SortParam } from './sort.js';
-import { ExpandParam } from './expand.js';
+	ResolveSelectWithExpand,
+	SelectWithExpand,
+	TypedRecordFullListQueryParams,
+	TypedRecordListQueryParams,
+	TypedRecordQueryParams
+} from './queryParams.js';
 
 // @ts-expect-error
 export interface TypedRecordService<Collection extends GenericCollection>
-	extends RecordService {
-	getFullList<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
-		queryParams?: TypedRecordFullListQueryParams<Collection, Select, Expand>
-	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>[]
-	>;
-
-	getFullList<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
+	extends RecordService<Collection['response']> {
+	getFullList<TSelect extends SelectWithExpand<Collection>>(
+		options?: TypedRecordFullListQueryParams<Collection, TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>[]>;
+	getFullList<TSelect extends SelectWithExpand<Collection>>(
 		batch?: number,
-		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
-	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>[]
-	>;
+		options?: TypedRecordListQueryParams<Collection, TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>[]>;
 
-	getList<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
+	getList<TSelect extends SelectWithExpand<Collection>>(
 		page?: number,
 		perPage?: number,
-		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
-	): Promise<
-		ListResult<
-			TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
-		>
-	>;
+		options?: TypedRecordListQueryParams<Collection, TSelect>
+	): Promise<ListResult<ResolveSelectWithExpand<Collection, TSelect>>>;
 
-	getFirstListItem<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
-		filter: FilterInput<RecordWithExpandToDotPath<Collection>>,
-		queryParams?: TypedRecordListQueryParams<Collection, Select, Expand>
-	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
-	>;
+	getFirstListItem<TSelect extends SelectWithExpand<Collection>>(
+		filter: Filter<Collection>,
+		options?: TypedRecordListQueryParams<Collection, TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
 
-	getOne<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
+	getOne<TSelect extends SelectWithExpand<Collection>>(
 		id: string,
-		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
-	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
-	>;
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
 
-	create<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
+	create<TSelect extends SelectWithExpand<Collection>>(
 		bodyParams: Collection['create'],
-		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
-	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
-	>;
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
 
-	update<
-		Select extends Fields<Collection> = Fields<Collection>,
-		Expand extends GenericExpand = {}
-	>(
+	update<TSelect extends SelectWithExpand<Collection>>(
 		id: string,
 		bodyParams: Collection['update'],
-		queryParams?: TypedRecordQueryParams<Collection, Select, Expand>
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
+
+	// ===== AUTH =====
+	authWithPassword<TSelect extends SelectWithExpand<Collection>>(
+		usernameOrEmail: string,
+		password: string,
+		options?: TypedRecordQueryParams<TSelect>
 	): Promise<
-		TypedRecord<Simplify<Pick<Columns<Collection>, Select>>, Expand>
+		RecordAuthResponse<ResolveSelectWithExpand<Collection, TSelect>>
 	>;
 
-	subscribe(
-		topic: LooseAutocomplete<'*'>,
-		callback: (
-			data: RecordSubscription<TypedRecord<Columns<Collection>>>
-		) => void
-	): Promise<UnsubscribeFunc>;
+	authWithOAuth2Code<TSelect extends SelectWithExpand<Collection>>(
+		provider: string,
+		code: string,
+		codeVerifier: string,
+		redirectUrl: string,
+		createData?: {
+			[key: string]: any;
+		},
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<
+		RecordAuthResponse<ResolveSelectWithExpand<Collection, TSelect>>
+	>;
 
-	subscribe(
-		callback: (
-			data: RecordSubscription<TypedRecord<Columns<Collection>>>
-		) => void
-	): Promise<UnsubscribeFunc>;
+	authWithOAuth2<TSelect extends SelectWithExpand<Collection>>(
+		provider: string,
+		code: string,
+		codeVerifier: string,
+		redirectUrl: string,
+		createData?: {
+			[key: string]: any;
+		},
+		bodyParams?: {
+			[key: string]: any;
+		},
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<
+		RecordAuthResponse<ResolveSelectWithExpand<Collection, TSelect>>
+	>;
+
+	authRefresh<TSelect extends SelectWithExpand<Collection>>(
+		options?: TypedRecordQueryParams<TSelect>
+	): Promise<
+		RecordAuthResponse<ResolveSelectWithExpand<Collection, TSelect>>
+	>;
 }
-
-export interface TypedBaseQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>
-> {
-	fields?: FieldsParam<Columns<T>, S>;
-	requestKey?: string | null;
-	/**
-	 * @deprecated use `requestKey:null` instead
-	 */
-	$autoCancel?: boolean;
-	/**
-	 * @deprecated use `requestKey:string` instead
-	 */
-	$cancelKey?: string;
-}
-
-export interface TypedListQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>
-> extends TypedBaseQueryParams<T, S> {
-	page?: number;
-	perPage?: number;
-	sort?: SortParam<RecordWithExpandToDotPath<T>>;
-	filter?: FilterParam<RecordWithExpandToDotPath<T>>;
-}
-
-export interface TypedFullListQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>
-> extends TypedListQueryParams<T, S> {
-	batch?: number;
-}
-
-export interface TypedRecordQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>,
-	E extends GenericExpand
-> extends TypedBaseQueryParams<T, S> {
-	expand?: ExpandParam<T, E>;
-}
-
-export interface TypedRecordListQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>,
-	E extends GenericExpand
-> extends TypedListQueryParams<T, S>,
-		TypedRecordQueryParams<T, S, E> {}
-
-export interface TypedRecordFullListQueryParams<
-	T extends GenericCollection,
-	S extends Fields<T>,
-	E extends GenericExpand
-> extends TypedFullListQueryParams<T, S>,
-		TypedRecordQueryParams<T, S, E> {}
