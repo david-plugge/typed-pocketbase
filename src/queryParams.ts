@@ -140,7 +140,14 @@ export const createOptions: CreateOptions = (options) => {
 
 export interface TypedBaseQueryParams<TSelect> {
 	select?: TSelect;
+	requestKey?: string | null;
+	/**
+	 * @deprecated use `requestKey:null` instead
+	 */
 	$autoCancel?: boolean;
+	/**
+	 * @deprecated use `requestKey:string` instead
+	 */
 	$cancelKey?: string;
 }
 

@@ -107,12 +107,37 @@ interface BaseCollectionRecord {
 	collectionName: string;
 }
 
+// https://pocketbase.io/docs/api-records/#create-record
+interface BaseCollectionRecordCreate {
+	id?: string;
+}
+
 // https://pocketbase.io/docs/collections/#auth-collection
 interface AuthCollectionRecord extends BaseCollectionRecord {
 	username: string;
 	email: string;
 	emailVisibility: boolean;
 	verified: boolean;
+}
+
+// https://pocketbase.io/docs/api-records/#create-record
+interface AuthCollectionRecordCreate extends BaseCollectionRecordCreate {
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password: string;
+	passwordConfirm: string;
+}
+
+// https://pocketbase.io/docs/api-records/#update-record
+interface AuthCollectionRecordUpdate {
+	username?: string;
+	email?: string;
+	emailVisibility?: boolean;
+	verified?: boolean;
+	password?: string;
+	passwordConfirm?: string;
 }
 
 // https://pocketbase.io/docs/collections/#view-collection
@@ -145,11 +170,11 @@ ${
 	t.type === 'view'
 		? ''
 		: `
-export interface ${t.typeName}Create {
+export interface ${t.typeName}Create extends ${t.type === "base" ? "BaseCollectionRecordCreate" : "AuthCollectionRecordCreate"} {
 	${t.columns.create.join('\n' + indent)}
 }
 
-export interface ${t.typeName}Update {
+export interface ${t.typeName}Update${t.type === "base" ? "" : " extends AuthCollectionRecordUpdate"} {
 	${t.columns.update.join('\n' + indent)}
 }
 `
@@ -171,7 +196,7 @@ export interface ${t.typeName}Collection {
 			: `{
 		${t.relations
 			.map((col) => `${col.name}: ${col.target};`)
-			.join('\n' + ' '.repeat(8))}
+			.join('\n' + indent.repeat(2))}
 	}`
 	};
 }
@@ -196,7 +221,7 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 	const req = field.required ? '' : '?';
 
 	const addResponse = (type: string, name = field.name) =>
-		response.push(`${name}${req}: ${type};`);
+		response.push(`${name}: ${type};`);
 	const addCreate = (type: string, name = field.name) =>
 		create.push(`${name}${req}: ${type};`);
 	const addUpdate = (type: string, name = field.name) =>
@@ -238,10 +263,13 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			break;
 		}
 		case 'select': {
-			const singleType = field.options.values
+			const single = field.options.maxSelect === 1;
+      const values = !field.required && single
+				? ["", ...field.options.values]
+				: field.options.values;
+			const singleType = values
 				.map((v) => `'${v}'`)
 				.join(' | ');
-			const single = field.options.maxSelect === 1;
 			const type = single ? `${singleType}` : `MaybeArray<${singleType}>`;
 
 			addResponse(single ? singleType : `Array<${singleType}>`);
