@@ -162,21 +162,21 @@ ${tables
 // ===== ${t.name} =====
 
 export interface ${t.typeName}Response extends ${baseRecord} {
-	collectionName: '${t.name}';
-	${t.columns.response.join('\n' + indent)}
+	collectionName: '${t.name}';${!t.columns.response.length ? '' : `
+	${t.columns.response.join('\n' + indent)}`}
 }
 ${
 	// view collections are readonly
 	t.type === 'view'
 		? ''
 		: `
-export interface ${t.typeName}Create extends ${t.type === "base" ? "BaseCollectionRecordCreate" : "AuthCollectionRecordCreate"} {
+export interface ${t.typeName}Create extends ${t.type === "base" ? "BaseCollectionRecordCreate" : "AuthCollectionRecordCreate"} ${!t.columns.create.length ? '{}' : `{
 	${t.columns.create.join('\n' + indent)}
-}
+}`}
 
-export interface ${t.typeName}Update${t.type === "base" ? "" : " extends AuthCollectionRecordUpdate"} {
+export interface ${t.typeName}Update${t.type === "base" ? "" : " extends AuthCollectionRecordUpdate"} ${!t.columns.update.length ? '{}' : `{
 	${t.columns.update.join('\n' + indent)}
-}
+}`}
 `
 }
 export interface ${t.typeName}Collection {
