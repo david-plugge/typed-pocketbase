@@ -42,13 +42,17 @@ const db = new PocketBase('http://localhost:8090') as TypedPocketBase<Schema>;
 Enjoy full type-safety:
 
 ```ts
-import { neq, sort, fields } from 'typed-pocketbase';
+import { createOptions, neq, sort } from 'typed-pocketbase';
 
-db.collection('posts').getList(1, 10, {
-	fields: fields('id', 'title', 'content'),
-	sort: sort('-date'),
+db.collection('posts').getList(1, 10, createOptions({
+	select: {
+		id: true,
+		title: true,
+		content: true
+	}
+	sort: '-date',
 	filter: neq('content', '')
-});
+}));
 ```
 
 Supported methods
@@ -63,22 +67,18 @@ Supported methods
 
 ## Selecting fields
 
-Use the `fields` function to select the properties:
-
-**Note:** Don´t use `expand` when selecting fields
-
 ```ts
-import { fields } from 'typed-pocketbase';
+import { createOptions } from 'typed-pocketbase';
 
-db.collection('posts').getFullList({
-	fields: fields('id', 'title', 'content')
-});
-
-// conditionally select fields
-// falsy values are excluded
-db.collection('posts').getFullList({
-	fields: fields(shouldIncludeId && 'id', 'title', 'content')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		select: {
+			id: showId,
+			title: true,
+			content: true
+		}
+	})
+);
 ```
 
 ## Filtering columns
@@ -86,48 +86,60 @@ db.collection('posts').getFullList({
 Use the `and`, `or` and other utility functions to filter rows:
 
 ```ts
-import { and, or, eq } from 'typed-pocketbase';
+import { createOptions, and, or, eq } from 'typed-pocketbase';
 
 // get all posts created in 2022
-db.collection('posts').getFullList({
-	// a "manual" filter is a tuple of length 3
-	filter: and(['date', '<', '2023-01-01'], ['data', '>=', '2022-01-01'])
-});
+db.collection('posts').getFullList(
+	createOptions({
+		// a "manual" filter is a tuple of length 3
+		filter: and(['date', '<', '2023-01-01'], ['data', '>=', '2022-01-01'])
+	})
+);
 
 // get all posts expect for those created in 2022
-db.collection('posts').getFullList({
-	filter: or(['date', '>=', '2023-01-01'], ['data', '<', '2022-01-01'])
-});
+db.collection('posts').getFullList(
+	createOptions({
+		filter: or(['date', '>=', '2023-01-01'], ['data', '<', '2022-01-01'])
+	})
+);
 
 // get all posts that were create at '2023-01-01'
-db.collection('posts').getFullList({
-	filter: eq('date', '2023-01-01')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		filter: eq('date', '2023-01-01')
+	})
+);
 
 // combine or/and with helpers and manual filters
-db.collection('posts').getFullList({
-	filter: or(
-		//
-		['date', '>=', '2023-01-01'],
-		lt('date', '2022-01-01')
-	)
-});
+db.collection('posts').getFullList(
+	createOptions({
+		filter: or(
+			//
+			['date', '>=', '2023-01-01'],
+			lt('date', '2022-01-01')
+		)
+	})
+);
 
 // conditionally filter rows
 // falsy values are excluded
-db.collection('posts').getFullList({
-	filter: and(
-		//
-		gte('date', '2022-01-01'),
-		!untilNow && lt('date', '2023-01-01')
-	)
-});
+db.collection('posts').getFullList(
+	createOptions({
+		filter: and(
+			//
+			gte('date', '2022-01-01'),
+			!untilNow && lt('date', '2023-01-01')
+		)
+	})
+);
 
 // filter for columns in relations
 // works up to 6 levels deep, including the top level
-db.collection('posts').getFullList({
-	filter: eq('owner.name', 'me')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		filter: eq('owner.name', 'me')
+	})
+);
 ```
 
 Most filter operators are available as short hand function.
@@ -139,63 +151,106 @@ Visit the [pocketbase documentation](https://pocketbase.io/docs/api-records/) to
 Use `sort`, `asc` and `desc` to sort the rows:
 
 ```ts
-import { sort, asc, desc } from 'typed-pocketbase';
+import { createOptions, sort, asc, desc } from 'typed-pocketbase';
 
-db.collection('posts').getFullList({
-	// sort by descending 'date'
-	sort: desc('date')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		// sort by descending 'date'
+		sort: desc('date')
+	})
+);
 
-db.collection('posts').getFullList({
-	// sort by descending 'date' and ascending 'title'
-	sort: sort('-date', '+title')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		// sort by descending 'date' and ascending 'title'
+		sort: sort('-date', '+title')
+	})
+);
 
-db.collection('posts').getFullList({
-	// sort by descending 'date' and ascending 'title'
-	sort: sort(desc('date'), asc('title'))
-});
+db.collection('posts').getFullList(
+	createOptions({
+		// sort by descending 'date' and ascending 'title'
+		sort: sort(desc('date'), asc('title'))
+	})
+);
 
 // you can mix functions with +/- prefixes
-db.collection('posts').getFullList({
-	// sort by descending 'date' and ascending 'title'
-	sort: sort(desc('date'), '+title')
-});
+db.collection('posts').getFullList(
+	createOptions({
+		// sort by descending 'date' and ascending 'title'
+		sort: sort(desc('date'), '+title')
+	})
+);
 
 // conditionally sort rows
 // falsy values are excluded
-db.collection('posts').getFullList({
-	sort: sort(
-		//
-		desc('date'),
-		sortTitle && asc('title')
-	)
-});
+db.collection('posts').getFullList(
+	createOptions({
+		sort: sort(
+			//
+			desc('date'),
+			sortTitle && asc('title')
+		)
+	})
+);
 ```
 
 ## Expanding
 
-Use the `expand` function to expand relations:
-
-**Note:** Don´t use `fields` when expanding as fields only works for the top level and `expand` would end up as an empty object
+The `createOptions` function automatically expands your models:
 
 ```ts
-import { expand } from 'typed-pocketbase';
+import { createOptions } from 'typed-pocketbase';
 
-db.collection('posts').getFullList({
-	expand: expand({
-		user: true
-	})
-});
-
-// nested expand
-db.collection('posts').getFullList({
-	expand: expand({
-		user: {
-			profile: true
+db.collection('posts').getFullList(
+	createOptions({
+		$expand: {
+			user: true
 		}
 	})
-});
+);
+
+// select nested columns
+db.collection('posts').getFullList(
+	createOptions({
+		$expand: {
+			user: {
+				name: true
+				avatar: true
+			}
+		}
+	})
+);
+
+// nested expand
+db.collection('posts').getFullList(
+	createOptions({
+		$expand: {
+			user: {
+				$expand: {
+					profile: true
+				}
+			}
+		}
+	})
+);
+```
+
+[Back relation expanding](https://pocketbase.io/docs/working-with-relations/#back-relation-expand) is support aswell:
+
+```ts
+import { createOptions } from 'typed-pocketbase';
+
+db.collection('user').getFullList(
+	createOptions({
+		$expand: {
+			'posts(user)': {
+				title: true,
+				created: true
+			}
+		}
+	})
+);
 ```
 
 ## License
