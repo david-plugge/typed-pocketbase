@@ -96,14 +96,15 @@ export const createOptions: CreateOptions = (options) => {
 	if (options.select) {
 		(function recurse(
 			{ $expand, ...rest }: SelectWithExpand<any>,
-			parent: string[] = []
+			fieldsParent: string[] = [],
+			expandParent: string[] = []
 		) {
 			if (Object.keys(rest).length === 0) {
-				fields.push([...parent, '*'].join('.'));
+				fields.push([...fieldsParent, '*'].join('.'));
 			} else {
 				for (const key in rest) {
 					if (rest[key]) {
-						fields.push([...parent, key].join('.'));
+						fields.push([...fieldsParent, key].join('.'));
 					}
 				}
 			}
@@ -112,11 +113,17 @@ export const createOptions: CreateOptions = (options) => {
 				for (const key in $expand) {
 					const sub = $expand[key];
 					if (sub === true) {
-						expand.push([...parent, key].join('.'));
-						fields.push([...parent, 'expand', key, '*'].join('.'));
+						expand.push([...expandParent, key].join('.'));
+						fields.push(
+							[...fieldsParent, 'expand', key, '*'].join('.')
+						);
 					} else if (sub) {
-						expand.push([...parent, key].join('.'));
-						recurse(sub, [...parent, 'expand', key]);
+						expand.push([...expandParent, key].join('.'));
+						recurse(
+							sub,
+							[...fieldsParent, 'expand', key],
+							[...expandParent, key]
+						);
 					}
 				}
 			}
