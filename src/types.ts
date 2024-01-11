@@ -1,5 +1,3 @@
-import { RecordModel as PocketBaseRecord } from 'pocketbase';
-
 export type Prettify<T> = T extends infer o ? { [K in keyof o]: o[K] } : never;
 export type MaybeArray<T> = T | T[];
 export type MaybeMakeArray<T, Out> = T extends any[] ? Out[] : Out;
@@ -47,17 +45,9 @@ export type GenericSchema = {
 export type TypedRecord<
 	Data extends BaseRecord,
 	Expand extends GenericExpand = {}
-> = Pick<PocketBaseRecord, 'load' | '$load' | '$isNew'> &
-	Data & {
-		load(data: Data): void;
-		$load(data: Data): void;
-		clone(): TypedRecord<Data, Expand>;
-		$clone(): TypedRecord<Data, Expand>;
-		export(): Data;
-		$export(): Data;
-
-		expand: Expand;
-	};
+> = Data & {
+	expand: Expand;
+};
 
 export interface SystemFields {
 	id: string;
