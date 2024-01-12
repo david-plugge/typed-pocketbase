@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.0.9
+
+### Patch Changes
+
+- 670ea7b: test version
+
 ## 0.0.9-next.0
 
 ### Patch Changes
