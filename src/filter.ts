@@ -42,10 +42,23 @@ export type FilterInput<T extends BaseRecord> =
 	| undefined;
 
 function serializeFilter([key, op, val]: ActualFilter<any>) {
-	return `${String(key)}${op}${typeof val === 'string' ? `'${val}'` : val}`;
+	const type = typeof val;
+	if (type === 'boolean' || type === 'number') {
+		val = val.toString();
+	} else if (type === 'string') {
+		val = "'" + val.replace(/'/g, "\\'") + "'";
+	} else if (val === null) {
+		val = 'null';
+	} else if (val instanceof Date) {
+		val = "'" + val.toISOString().replace('T', ' ') + "'";
+	} else {
+		val = "'" + JSON.stringify(val).replace(/'/g, "\\'") + "'";
+	}
+
+	return `${String(key)}${op}${val}`;
 }
 
-function serializeFilters(filters: FilterInput<any>[]) {
+export function serializeFilters(filters: FilterInput<any>[]) {
 	return filters
 		.filter(Boolean)
 		.map((filter) =>
