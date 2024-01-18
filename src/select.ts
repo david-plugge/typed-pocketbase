@@ -18,7 +18,7 @@ export type SelectWithExpand<Collection extends GenericCollection> =
 		};
 	};
 
-export type ResolveSimpleSelect<
+export type ResolveSelect<
 	TCollection extends GenericCollection,
 	TSelect extends Select<TCollection> | undefined
 > = undefined extends TSelect
@@ -36,7 +36,7 @@ export type ResolveSelectWithExpand<
 	TCollection extends GenericCollection,
 	TSelect extends Select<TCollection> | undefined
 > = Prettify<
-	ResolveSimpleSelect<TCollection, TSelect> &
+	ResolveSelect<TCollection, TSelect> &
 		('expand' extends keyof TSelect
 			? {
 					expand: {
