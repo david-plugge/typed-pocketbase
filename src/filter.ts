@@ -1,8 +1,4 @@
-import {
-	BaseRecord,
-	GenericCollection,
-	RecordWithExpandToDotPath
-} from './types.js';
+import type { BaseRecord } from './types.js';
 
 type ActualFilter<T extends any, K extends keyof T = keyof T> = [
 	K,
@@ -30,11 +26,7 @@ export type FilterOperand =
 
 export type FilterParam<T extends BaseRecord> = { __record__?: T } & string;
 
-export type Filter<T extends GenericCollection> = FilterParam<
-	RecordWithExpandToDotPath<T>
->;
-
-export type FilterInput<T extends BaseRecord> =
+export type Filter<T extends BaseRecord> =
 	| ActualFilter<T>
 	| FilterParam<T>
 	| false
@@ -58,7 +50,7 @@ function serializeFilter([key, op, val]: ActualFilter<any>) {
 	return `${String(key)}${op}${val}`;
 }
 
-export function serializeFilters(filters: FilterInput<any>[]) {
+export function serializeFilters(filters: Filter<any>[]) {
 	return filters
 		.filter(Boolean)
 		.map((filter) =>
@@ -67,7 +59,7 @@ export function serializeFilters(filters: FilterInput<any>[]) {
 }
 
 export function and<T extends BaseRecord>(
-	...filters: FilterInput<T>[]
+	...filters: Filter<T>[]
 ): FilterParam<T> {
 	const str = serializeFilters(filters).join(' && ');
 	if (!str.length) return '';
@@ -75,7 +67,7 @@ export function and<T extends BaseRecord>(
 }
 
 export function or<T extends BaseRecord>(
-	...filters: FilterInput<T>[]
+	...filters: Filter<T>[]
 ): FilterParam<T> {
 	const str = serializeFilters(filters).join(' || ');
 	if (!str.length) return '';

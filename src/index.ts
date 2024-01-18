@@ -1,21 +1,9 @@
-import PocketBase, { RecordModel, RecordService } from 'pocketbase';
-import { GenericSchema } from './types.js';
-import { TypedRecordService } from './record-service.js';
-
-export {
-	createOptions,
+export type {
 	ResolveSelect,
 	ResolveSelectWithExpand,
 	Select,
-	SelectWithExpand,
-	TypedBaseQueryParams,
-	TypedFullListQueryParams,
-	TypedListQueryParams,
-	TypedRecordFullListQueryParams,
-	TypedRecordListQueryParams,
-	TypedRecordQueryParams
-} from './queryParams.js';
-
+	SelectWithExpand
+} from './select.js';
 export {
 	and,
 	or,
@@ -27,15 +15,14 @@ export {
 	lte,
 	neq,
 	nlike,
-	Filter
+	type Filter
 } from './filter.js';
-export { asc, desc, sort, Sort } from './sort.js';
-export { GenericSchema, GenericCollection, TypedRecord } from './types.js';
-
-export interface TypedPocketBase<Schema extends GenericSchema>
-	extends PocketBase {
-	collection<C extends keyof Schema>(
-		idOrName: C
-	): TypedRecordService<Schema[C]>;
-	collection<M = RecordModel>(idOrName: string): RecordService<M>;
-}
+export type { Sort } from './sort.js';
+export type { GenericSchema, GenericCollection, TypedRecord } from './types.js';
+export {
+	type AuthCollectionService,
+	type BaseCollectionService,
+	type ViewCollectionService,
+	TypedPocketBase,
+	TypedRecordService
+} from './client.js';

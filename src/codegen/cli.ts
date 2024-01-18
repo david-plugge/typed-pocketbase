@@ -52,7 +52,7 @@ sade(PKG_NAME, true)
 			if (out) {
 				const file = resolve(out);
 				await mkdir(dirname(file), { recursive: true });
-				await writeFile(file, definition, 'utf-8');
+				await writeFile(file, definition + '\n', 'utf-8');
 			} else {
 				console.log(definition);
 			}
