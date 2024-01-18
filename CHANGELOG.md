@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.0
+
+### Minor Changes
+
+- custom client
+
 ## 0.0.9
 
 ### Patch Changes

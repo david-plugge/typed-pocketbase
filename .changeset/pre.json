@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "pre",
+  "initialVersions": {
+    "typed-pocketbase": "0.0.9"
+  },
+  "changesets": [
+    "honest-ants-rest"
+  ]
+}
