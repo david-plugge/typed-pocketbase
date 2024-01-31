@@ -181,10 +181,10 @@ export class TypedRecordService
 
 		if (fields) options.fields = fields;
 		if (expand) options.expand = expand;
-		if (sort) {
-			options.sort = Array.isArray(options?.sort)
-				? options.sort.join(',')
-				: options?.sort;
+		if (Array.isArray(sort) && sort.length) {
+			options.sort = sort.join(',');
+		} else if (sort) {
+			options.sort = sort;
 		}
 
 		return options;
