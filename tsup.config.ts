@@ -4,7 +4,7 @@ import { name, version } from './package.json';
 export default defineConfig([
 	{
 		entry: ['src/index.ts'],
-		format: ['esm', 'cjs'],
+		format: ['esm'],
 		outDir: 'dist/client',
 		dts: true,
 		sourcemap: true,
