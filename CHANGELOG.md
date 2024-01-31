@@ -1,5 +1,13 @@
 # typed-pocketbase
 
+## 0.1.0-pre.1
+
+### Patch Changes
+
+- realtime support
+- remove cjs bundle
+- expand can be undefined
+
 ## 0.1.0-pre.0
 
 ### Minor Changes

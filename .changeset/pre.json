@@ -5,6 +5,9 @@
     "typed-pocketbase": "0.0.9"
   },
   "changesets": [
-    "honest-ants-rest"
+    "cuddly-parrots-shout",
+    "gentle-schools-flow",
+    "honest-ants-rest",
+    "young-apes-brush"
   ]
 }
