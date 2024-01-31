@@ -5,6 +5,7 @@
     "typed-pocketbase": "0.0.9"
   },
   "changesets": [
+    "afraid-eggs-fold",
     "cuddly-parrots-shout",
     "gentle-schools-flow",
     "gold-socks-wink",

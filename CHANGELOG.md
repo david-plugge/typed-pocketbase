@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.3
+
+### Patch Changes
+
+- fix sort param parsing
+
 ## 0.1.0-pre.2
 
 ### Patch Changes
