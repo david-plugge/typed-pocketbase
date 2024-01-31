@@ -4,7 +4,9 @@ import PocketBase, {
 	RecordAuthResponse,
 	RecordOptions,
 	RecordService,
-	SendOptions
+	RecordSubscription,
+	SendOptions,
+	UnsubscribeFunc
 } from 'pocketbase';
 import {
 	BaseRecord,
@@ -27,6 +29,20 @@ export interface ViewCollectionService<
 > {
 	collectionName: Collection['collectionName'];
 	client: PocketBase;
+
+	subscribe<TSelect extends SelectWithExpand<Collection> | undefined>(
+		topic: string,
+		callback: (
+			data: RecordSubscription<
+				ResolveSelectWithExpand<Collection, TSelect>
+			>
+		) => void,
+		options?: {
+			select?: TSelect;
+			sort?: MaybeArray<Sort<ExpandedRecord>>;
+			filter?: Filter<ExpandedRecord>;
+		} & SendOptions
+	): Promise<UnsubscribeFunc>;
 
 	getFullList<TSelect extends SelectWithExpand<Collection> | undefined>(
 		options?: {
@@ -126,6 +142,8 @@ export interface AuthCollectionService<Collection extends GenericCollection>
 }
 
 const FORWARD_METHODS = [
+	'unsubscribe',
+
 	'listAuthMethods',
 	'requestPasswordReset',
 	'confirmPasswordReset',
@@ -155,21 +173,23 @@ export class TypedRecordService
 		return this.service.collectionIdOrName;
 	}
 
-	private prepareOptions(options?: RecordOptions): RecordOptions {
-		const opts = {
-			...options
-		};
+	private prepareOptions({
+		select,
+		filter,
+		sort,
+		...options
+	}: RecordOptions = {}): RecordOptions {
+		const { expand, fields } = resolveSelect(select);
 
-		const { expand, fields } = resolveSelect(options?.select);
-		const sort = Array.isArray(options?.sort)
-			? options.sort.join(',')
-			: options?.sort;
+		if (fields) options.fields = fields;
+		if (expand) options.expand = expand;
+		if (sort) {
+			options.sort = Array.isArray(options?.sort)
+				? options.sort.join(',')
+				: options?.sort;
+		}
 
-		if (fields) opts.fields = fields;
-		if (expand) opts.expand = expand;
-		if (sort) opts.sort = sort;
-
-		return opts;
+		return options;
 	}
 
 	createFilter(filter: string) {
@@ -184,8 +204,20 @@ export class TypedRecordService
 		return select;
 	}
 
+	subscribe(
+		topic: string,
+		callback: (data: RecordSubscription<any>) => void,
+		options?: SendOptions
+	): Promise<UnsubscribeFunc> {
+		return this.service.subscribe(
+			topic,
+			callback,
+			this.prepareOptions(options)
+		);
+	}
+
 	getFullList(options?: SendOptions) {
-		return this.service.getFullList<any>(this.prepareOptions(options));
+		return this.service.getFullList(this.prepareOptions(options));
 	}
 
 	getList(page?: number, perPage?: number, options?: SendOptions) {
