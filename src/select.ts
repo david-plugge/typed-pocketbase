@@ -39,11 +39,11 @@ export type ResolveSelectWithExpand<
 	ResolveSelect<TCollection, TSelect> &
 		('expand' extends keyof TSelect
 			? {
-					expand: {
+					expand?: {
 						[Relation in keyof TSelect['expand'] &
 							keyof TCollection['relations'] as TSelect['expand'][Relation] extends false
 							? never
-							: Relation]: TSelect['expand'][Relation] extends true
+							: Relation]?: TSelect['expand'][Relation] extends true
 							? MaybeMakeArray<
 									TCollection['relations'][Relation],
 									ArrayInnerType<
