@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.2
+
+### Patch Changes
+
+- only expose supported types for subscribe options
+
 ## 0.1.0-pre.1
 
 ### Patch Changes

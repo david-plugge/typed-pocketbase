@@ -39,8 +39,6 @@ export interface ViewCollectionService<
 		) => void,
 		options?: {
 			select?: TSelect;
-			sort?: MaybeArray<Sort<ExpandedRecord>>;
-			filter?: Filter<ExpandedRecord>;
 		} & SendOptions
 	): Promise<UnsubscribeFunc>;
 
