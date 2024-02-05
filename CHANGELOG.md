@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.4
+
+### Patch Changes
+
+- account for plural relations
+
 ## 0.1.0-pre.3
 
 ### Patch Changes
