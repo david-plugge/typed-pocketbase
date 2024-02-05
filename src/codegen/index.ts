@@ -149,11 +149,11 @@ export interface AuthCollectionUpdate {
 	/**
 	 * New auth record password.
 	 */
-	password: string;
+	password?: string;
 	/**
 	 * New auth record password confirmation.
 	 */
-	passwordConfirm: string;
+	passwordConfirm?: string;
 	/**
 	 * Indicates whether the auth record is verified or not.
 	 * This field can be set only by admins or auth records with "Manage" access.
