@@ -223,7 +223,7 @@ function createCollectionTypes({
 				(r) =>
 					`${/^\w+$/.test(r.name) ? r.name : `'${r.name}'`}: ${
 						r.target.typeName
-					}Collection;`
+					}Collection${r.unique ? '' : '[]'};`
 			)
 			.join('\n\t\t');
 	};
