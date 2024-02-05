@@ -30,7 +30,7 @@
 		"ci:release": "changeset publish"
 	},
 	"peerDependencies": {
-		"pocketbase": "^0.20.0"
+		"pocketbase": "^0.21.0"
 	},
 	"dependencies": {
 		"sade": "^1.8.1"

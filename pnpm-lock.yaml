@@ -18,7 +18,7 @@ devDependencies:
     version: 20.11.13
   pocketbase:
     specifier: ^0.21.0
-    version: 0.21.0
+    version: 0.21.1
   prettier:
     specifier: ^3.2.4
     version: 3.2.4
@@ -1999,8 +1999,8 @@ packages:
       find-up: 4.1.0
     dev: true
 
-  /pocketbase@0.21.0:
-    resolution: {integrity: sha512-WGA5qxW9jzwOTx0i3FNhkKBlT2F5EvC8qZDYv14SB3BeOZVAqs6wMTj7vAXD52V0Fg8zF4XPHJCAJK04fw1rqg==}
+  /pocketbase@0.21.1:
+    resolution: {integrity: sha512-0PvCP4pKtxsV9kwldEGyibEvhwOcx9jSCrz3WN5CgPILJfM0z76f1op9WE8/8UgikDsMdRsc5iBLfKintrJS1g==}
     dev: true
 
   /postcss-load-config@4.0.2:
