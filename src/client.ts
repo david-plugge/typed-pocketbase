@@ -21,7 +21,7 @@ import {
 	resolveSelect
 } from './select.js';
 import { Sort } from './sort.js';
-import { Filter } from './filter.js';
+import { Filter, serializeFilter } from './filter.js';
 
 export interface ViewCollectionService<
 	Collection extends GenericCollection,
@@ -181,6 +181,8 @@ export class TypedRecordService
 
 		if (fields) options.fields = fields;
 		if (expand) options.expand = expand;
+		if (filter) options.filter = serializeFilter(filter) ?? '';
+
 		if (Array.isArray(sort) && sort.length) {
 			options.sort = sort.join(',');
 		} else if (sort) {
@@ -190,8 +192,8 @@ export class TypedRecordService
 		return options;
 	}
 
-	createFilter(filter: string) {
-		return filter ? filter : '';
+	createFilter(filter: Filter<Record<string, any>>) {
+		return serializeFilter(filter);
 	}
 
 	createSort(...sorters: any[]): any {

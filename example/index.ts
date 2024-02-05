@@ -4,15 +4,6 @@ import { TypedPocketBase, eq, or } from '../src/index.js';
 const db = new TypedPocketBase<Schema>('http://localhost:8090');
 await db.admins.authWithPassword('admin@example.com', 'secretpassword');
 
-const res = await db.from('users').authWithPassword('', '', {
-	select: {
-		id: true,
-		expand: {
-			'posts(owner)': true
-		}
-	}
-});
-
 {
 	const posts = await db.from('posts').getFullList({
 		select: {
