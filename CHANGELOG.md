@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.5
+
+### Patch Changes
+
+- fix filters
+
 ## 0.1.0-pre.4
 
 ### Patch Changes
