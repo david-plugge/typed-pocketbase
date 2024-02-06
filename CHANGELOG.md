@@ -1,5 +1,24 @@
 # typed-pocketbase
 
+## 0.1.0
+
+### Minor Changes
+
+- f462286: custom client
+
+### Patch Changes
+
+- f462286: fix sort param parsing
+- f462286: correctly type empty select
+- f462286: fix filters
+- f462286: realtime support
+- f462286: remove cjs bundle
+- f462286: only expose supported types for subscribe options
+- f462286: account for plural relations
+- f462286: allow deleting files by providing null as value
+- f462286: make password and passwordConfirm optional on update
+- f462286: expand can be undefined
+
 ## 0.1.0-pre.7
 
 ### Patch Changes
