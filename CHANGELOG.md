@@ -1,5 +1,55 @@
 # typed-pocketbase
 
+## 0.1.0-pre.7
+
+### Patch Changes
+
+- allow deleting files by providing null as value
+
+## 0.1.0-pre.6
+
+### Patch Changes
+
+- make password and passwordConfirm optional on update
+
+## 0.1.0-pre.5
+
+### Patch Changes
+
+- fix filters
+
+## 0.1.0-pre.4
+
+### Patch Changes
+
+- account for plural relations
+
+## 0.1.0-pre.3
+
+### Patch Changes
+
+- fix sort param parsing
+
+## 0.1.0-pre.2
+
+### Patch Changes
+
+- only expose supported types for subscribe options
+
+## 0.1.0-pre.1
+
+### Patch Changes
+
+- realtime support
+- remove cjs bundle
+- expand can be undefined
+
+## 0.1.0-pre.0
+
+### Minor Changes
+
+- custom client
+
 ## 0.0.9
 
 ### Patch Changes

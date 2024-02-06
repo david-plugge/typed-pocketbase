@@ -1,6 +1,6 @@
 {
 	"name": "typed-pocketbase",
-	"version": "0.0.9",
+	"version": "0.1.0-pre.7",
 	"description": "Add types to the PocketBase JavaScript SDK",
 	"author": "David Plugge",
 	"repository": {
@@ -17,7 +17,6 @@
 		"src"
 	],
 	"type": "module",
-	"main": "./dist/client/index.cjs",
 	"module": "./dist/client/index.js",
 	"types": "./dist/client/index.d.ts",
 	"bin": {
@@ -31,16 +30,16 @@
 		"ci:release": "changeset publish"
 	},
 	"peerDependencies": {
-		"pocketbase": "^0.20.0"
+		"pocketbase": "^0.21.0"
 	},
 	"dependencies": {
 		"sade": "^1.8.1"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.27.1",
-		"@types/node": "^20.10.4",
-		"pocketbase": "^0.20.1",
-		"prettier": "^3.1.1",
+		"@types/node": "^20.11.13",
+		"pocketbase": "^0.21.0",
+		"prettier": "^3.2.4",
 		"tsup": "^8.0.1",
 		"typescript": "^5.3.3"
 	}

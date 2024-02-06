@@ -106,3 +106,5 @@ type _RecordWithExpandToDotPath<
 export type RecordWithExpandToDotPath<T extends GenericCollection> = Prettify<
 	_RecordWithExpandToDotPath<T>
 >;
+
+export type ReservedRecordNames = 'collectionId' | 'collectionName';
