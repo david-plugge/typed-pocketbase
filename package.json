@@ -1,6 +1,6 @@
 {
 	"name": "typed-pocketbase",
-	"version": "0.1.0-pre.6",
+	"version": "0.1.0-pre.7",
 	"description": "Add types to the PocketBase JavaScript SDK",
 	"author": "David Plugge",
 	"repository": {

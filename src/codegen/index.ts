@@ -403,8 +403,8 @@ function getFieldType(field: Field, { response, create, update }: Columns) {
 			const single = field.options.maxSelect === 1;
 
 			addResponse(single ? 'string' : `Array<string>`);
-			addCreate(single ? `File` : `MaybeArray<File>`);
-			addUpdate(single ? `File` : `MaybeArray<File>`);
+			addCreate(single ? `File | null` : `MaybeArray<File>`);
+			addUpdate(single ? `File | null` : `MaybeArray<File>`);
 			if (!single) {
 				addUpdate('string', `'${field.name}-'`);
 			}

@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.0-pre.7
+
+### Patch Changes
+
+- allow deleting files by providing null as value
+
 ## 0.1.0-pre.6
 
 ### Patch Changes
