@@ -21,9 +21,8 @@ export type SelectWithExpand<Collection extends GenericCollection> =
 export type ResolveSelect<
 	TCollection extends GenericCollection,
 	TSelect extends Select<TCollection> | undefined
-> = undefined extends TSelect
-	? TCollection['response']
-	: Extract<keyof TSelect, keyof TCollection['response']> extends never
+> =
+	Extract<keyof TSelect, keyof TCollection['response']> extends never
 		? TCollection['response']
 		: {
 				[K in keyof TSelect &

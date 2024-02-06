@@ -51,7 +51,7 @@ export interface ViewCollectionService<
 			filter?: Filter<ExpandedRecord>;
 		} & SendOptions
 	): Promise<ResolveSelectWithExpand<Collection, TSelect>[]>;
-	getList<TSelect extends SelectWithExpand<Collection>>(
+	getList<TSelect extends SelectWithExpand<Collection> = {}>(
 		page?: number,
 		perPage?: number,
 		options?: {
@@ -60,14 +60,14 @@ export interface ViewCollectionService<
 			filter?: Filter<ExpandedRecord>;
 		} & SendOptions
 	): Promise<ListResult<ResolveSelectWithExpand<Collection, TSelect>>>;
-	getFirstListItem<TSelect extends SelectWithExpand<Collection>>(
+	getFirstListItem<TSelect extends SelectWithExpand<Collection> = {}>(
 		filter: Filter<ExpandedRecord>,
 		options?: {
 			select?: TSelect;
 			sort?: MaybeArray<Sort<ExpandedRecord>>;
 		} & SendOptions
 	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
-	getOne<TSelect extends SelectWithExpand<Collection>>(
+	getOne<TSelect extends SelectWithExpand<Collection> = {}>(
 		id: string,
 		options?: {
 			select?: TSelect;
@@ -83,13 +83,13 @@ export interface ViewCollectionService<
 
 export interface BaseCollectionService<Collection extends GenericCollection>
 	extends ViewCollectionService<Collection> {
-	create<TSelect extends SelectWithExpand<Collection>>(
+	create<TSelect extends SelectWithExpand<Collection> = {}>(
 		bodyParams: Collection['create'],
 		options?: {
 			select?: TSelect;
 		} & SendOptions
 	): Promise<ResolveSelectWithExpand<Collection, TSelect>>;
-	update<TSelect extends SelectWithExpand<Collection>>(
+	update<TSelect extends SelectWithExpand<Collection> = {}>(
 		id: string,
 		bodyParams: Collection['update'],
 		options?: {
@@ -102,7 +102,7 @@ export interface BaseCollectionService<Collection extends GenericCollection>
 export interface AuthCollectionService<Collection extends GenericCollection>
 	extends BaseCollectionService<Collection>,
 		Pick<RecordService, (typeof FORWARD_METHODS)[number]> {
-	authWithPassword<TSelect extends SelectWithExpand<Collection>>(
+	authWithPassword<TSelect extends SelectWithExpand<Collection> = {}>(
 		usernameOrEmail: string,
 		password: string,
 		options?: {
@@ -111,7 +111,7 @@ export interface AuthCollectionService<Collection extends GenericCollection>
 	): Promise<
 		RecordAuthResponse<ResolveSelectWithExpand<Collection, TSelect>>
 	>;
-	authWithOAuth2Code<TSelect extends SelectWithExpand<Collection>>(
+	authWithOAuth2Code<TSelect extends SelectWithExpand<Collection> = {}>(
 		provider: string,
 		code: string,
 		codeVerifier: string,
@@ -130,7 +130,7 @@ export interface AuthCollectionService<Collection extends GenericCollection>
 			createData?: Collection['create'];
 		} & SendOptions
 	): Promise<RecordAuthResponse<Collection['response']>>;
-	authRefresh<TSelect extends SelectWithExpand<Collection>>(
+	authRefresh<TSelect extends SelectWithExpand<Collection> = {}>(
 		options?: {
 			select?: TSelect;
 		} & SendOptions
