@@ -54,7 +54,7 @@ await db.admins.authWithPassword('admin@example.com', 'secretpassword');
 }
 
 {
-	const sort = db.from('posts').createSort('+id');
+	const sort = db.from('posts').createSort('+id', '-date');
 
 	const filter = db
 		.from('posts')

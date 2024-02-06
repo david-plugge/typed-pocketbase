@@ -63,8 +63,6 @@ db.from('posts').getFullList({
 ## Selecting fields
 
 ```ts
-import { createOptions } from 'typed-pocketbase';
-
 const showId = Math.random() < 0.5;
 
 db.from('posts').getFullList({
@@ -149,7 +147,7 @@ db.from('posts').getFullList({
 
 ## Expanding
 
-The `createOptions` function automatically expands your models:
+In `typed-pocketbase` expanding happens automatically when using select.
 
 ```ts
 db.from('posts').getFullList({
@@ -199,6 +197,40 @@ db.from('user').getFullList({
 		}
 	}
 });
+```
+
+## Helper methods:
+
+### createSelect
+
+```ts
+const select = db.from('posts').createSelect({
+	id: true,
+	content: true,
+	owner: true,
+	collectionName: true,
+	asd: true,
+	expand: {
+		owner: {
+			username: true,
+			email: true
+		}
+	}
+});
+```
+
+### createFilter
+
+```ts
+const filter = db
+	.from('posts')
+	.createFilter(or(eq('content', 'bla'), eq('published', true)));
+```
+
+### createSort
+
+```ts
+const sort = db.from('posts').createSort('+id', '-date');
 ```
 
 ## License
