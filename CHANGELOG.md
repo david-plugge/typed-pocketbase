@@ -1,5 +1,11 @@
 # typed-pocketbase
 
+## 0.1.1
+
+### Patch Changes
+
+- 65ca205: Add main field to package.json
+
 ## 0.1.0
 
 ### Minor Changes
