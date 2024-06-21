@@ -304,6 +304,11 @@ function buildCollectionDefinitions(collections: Collection[]) {
 						target: from,
 						unique: isUnique
 					});
+					target.relations.push({
+						name: `${collection.name}_via_${field.name}`,
+						target: from,
+						unique: isUnique
+					});
 				});
 			}
 		}
