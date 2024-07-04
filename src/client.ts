@@ -229,8 +229,9 @@ export class TypedRecordService
 	}
 
 	getFirstListItem(filter: string, options?: SendOptions) {
+		const preparedFilter = typeof filter === 'string' ? filter : serializeFilter(filter)
 		return this.service.getFirstListItem(
-			filter,
+			preparedFilter,
 			this.prepareOptions(options)
 		);
 	}
